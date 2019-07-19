@@ -40,9 +40,17 @@ public class ClientThread extends Thread{
 			if( e.getClass() == java.io.EOFException.class )
 			{
 				// if client exited the terminal itself
-				this.request.contents = "sv_logout";
-				this.request.id = Request.Type.MSG.ordinal();
-				Server.requestqueue.add(this);
+				if(request.roomId != -1) {
+					this.request.contents = "sv_logout";
+					this.request.id = Request.Type.MSG.ordinal();
+					Server.requestqueue.add(this);
+				}
+				else {
+					this.request.contents = "";
+					this.request.id = Request.Type.LOGOUT.ordinal();
+					Server.requestqueue.add(this);
+				}
+				
 				if( Server.requestAnalyser.getState() == State.WAITING )
 				{
 					synchronized (Server.requestAnalyser) {
@@ -50,7 +58,6 @@ public class ClientThread extends Thread{
 					}
 				}
 			}
-			// e.printStackTrace();
 		}
 	}
 }
