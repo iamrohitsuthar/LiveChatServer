@@ -26,20 +26,16 @@ public class Client {
 		this.host = host;
 		this.port = port;
 		messageListener = new MessageListener();
-//		messageListener.start();
 	}
 	
 	public void connect() {
 		try {
-			Message.println("Connecting to Server");
 			socket = new Socket(host,port);
 			objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
 			objectInputStream = new ObjectInputStream(socket.getInputStream());
-			Message.println("Connected Successfully");
 			mainFunc();
 		} catch (IOException e) {
 			e.printStackTrace();
-			Message.println("In Connect");
 		}
 	}
 	
@@ -85,7 +81,7 @@ public class Client {
 		if( response.success)
 		{
 			Message.println(response.content);
-			System.exit(1);
+			connect();
 		}
 		else
 		{
@@ -95,24 +91,28 @@ public class Client {
 	}
 
 	private void viewRooms() throws Exception{
-		cont = "";
-		request = new Request(Request.Type.VIEW_ROOMS.ordinal(),clientID,roomId,cont);
-		objectOutputStream.writeObject(request);
-		objectOutputStream.flush();
-		response = (Response) objectInputStream.readObject();
-		if( response.success)
-		{
-			Message.println(response.content);
-			Message.println("Enter name of chat room:");
-			cont = scanner.next();
-			createAndJoinRoom(cont, false);
+		try {
+			cont = "";
+			request = new Request(Request.Type.VIEW_ROOMS.ordinal(),clientID,roomId,cont);
+			objectOutputStream.writeObject(request);
+			objectOutputStream.flush();
+			response = (Response) objectInputStream.readObject();
+			if( response.success)
+			{
+				Message.println(response.content);
+				Message.println("Enter name of chat room:");
+				cont = scanner.next();
+				createAndJoinRoom(cont, false);
+			}
+			else
+			{
+				Message.println(response.content);
+				mainOptions();
+			}
 		}
-		else
-		{
-			Message.println(response.content);
-			mainOptions();
+		catch(Exception e) {
+			
 		}
-		
 	}
 
 	private void createAndJoinRoom(String rName, boolean create) throws Exception
@@ -121,6 +121,7 @@ public class Client {
 			request = new Request(Request.Type.CREATE_ROOM.ordinal(),clientID,roomId,cont);
 		else
 			request = new Request(Request.Type.JOIN_ROOM.ordinal(),clientID,roomId,cont);
+		
 		objectOutputStream.writeObject(request);
 		objectOutputStream.flush();
 		Object obj =  objectInputStream.readObject();		
@@ -155,16 +156,21 @@ public class Client {
 				messageListener.notify();
 			}
 		}
-		else
+		else {
 				messageListener.start();
+		}
+		
 		Message.println("NOTE: You've entered the server. \n"
 				+ "Type your message and press enter to send.\n"
 				+ "To send message to a particular user use: '@user_name your_message' without quotes\n"
 				+ "For exiting the room type 'sv_exit' without quotes\n"
 				+ "For logging out type 'sv_logout' without quotes");
+		
 		request = new Request(Request.Type.MSG.ordinal(),clientID,roomId,"joined the chat");
+		
 		objectOutputStream.writeObject(request);
 		objectOutputStream.flush();
+		
 		while(true) {
 			cont = scanner.nextLine();
 			request = new Request(Request.Type.MSG.ordinal(),clientID,roomId,cont);
@@ -179,11 +185,13 @@ public class Client {
 		{
 			mainOptions();
 		}
-		
 		if( cont.equals("sv_logout"))
 		{
-			mainFunc();
+			//mainFunc();
+			connect();
 		}
+		
+		
 	}
 	
 	class MessageListener extends Thread{
@@ -192,21 +200,23 @@ public class Client {
 			while(true) {
 				try {
 					response = (Response) objectInputStream.readObject();
-					if( !response.content.equals("sv_exit_successful") || response.id != Response.Type.LOGOUT.ordinal() )
-						Message.println(response.content);
-					else
-					{
+					Message.println(response.content);
+					// || response.id != Response.Type.LOGOUT.ordinal()
+					if(response.content.equals("sv_exit_successful")) {
 						synchronized(this){
 							this.wait();
 						}
 					}
+					else if(response.id == Response.Type.LOGOUT.ordinal()) {
+						synchronized(this){
+							this.wait();
+						}
+					}
+					
 				} catch (ClassNotFoundException | IOException e) {
 					e.printStackTrace();
-					Message.println("In Message Listner");
 					break;
-//					System.exit(1);
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					Message.println("THREAD ERROR");
 					e.printStackTrace();
 				}

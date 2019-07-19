@@ -79,7 +79,7 @@ class RequestAnalyser extends Thread{
 								//store the client in our client holder hash map
 								Server.clientHolder.put(clientID, clientThread);
 								//update the user message count
-								Server.messagesTrackHashmap.put(request.clientId, Server.messagesTrackHashmap.get(request.clientId)+1);
+								Server.messagesTrackHashmap.put(clientID,0);
 							}
 							else {
 								//something went wrong or if data is not inserted in database
@@ -234,11 +234,12 @@ class RequestAnalyser extends Thread{
 
 	public static void logout(ClientThread clientThread, Request request) {
 		// TODO Auto-generated method stub
-		Response response = new Response( Response.Type.LOGOUT.ordinal() , true, "sv_exit_successful");
+		Response response = new Response( Response.Type.LOGOUT.ordinal() , true, "Logout Succesfully");
 		Server.responseMakerQueue.add(new ResponseHolder(response, clientThread.objectOutputStream));
 		
+		if(request.roomId != -1)
+			Server.roomsHolder.get(request.roomId).remove(request.clientId);
 		
-		Server.roomsHolder.get(request.roomId).remove(request.clientId);
 		Server.clientHolder.remove(request.clientId);
 		
 		if( Server.responseMaker.getState() == State.WAITING )
@@ -268,6 +269,7 @@ class ResponseMaker  extends Thread{
 					}
 				responseHolder = Server.responseMakerQueue.poll();
 				responseHolder.objectOutputStream.writeObject(responseHolder.response);
+				responseHolder.objectOutputStream.flush();
 			}
 			catch (Exception e) {
 				
@@ -311,6 +313,7 @@ class MessageHandler  extends Thread{
 				Set<Integer> set = Server.roomsHolder.get(request.roomId);
 				
 				//update the user message count
+				
 				Server.messagesTrackHashmap.put(request.clientId, Server.messagesTrackHashmap.get(request.clientId)+1);
 				
 				
@@ -333,6 +336,7 @@ class MessageHandler  extends Thread{
 						ObjectOutputStream oos = ct.objectOutputStream;
 						Response res = new Response(Response.Type.MSG.ordinal(),true,msg);
 						oos.writeObject(res);
+						oos.flush();
 						continue;
 					}
 					else
@@ -343,6 +347,7 @@ class MessageHandler  extends Thread{
 						ObjectOutputStream oos = ct.objectOutputStream;
 						Response res = new Response(Response.Type.MSG.ordinal(),true,msg);
 						oos.writeObject(res);
+						oos.flush();
 						
 					}
 				}
@@ -362,15 +367,19 @@ class MessageHandler  extends Thread{
 									ObjectOutputStream oos = ct.objectOutputStream;
 									Response res = new Response(Response.Type.MSG.ordinal(),true,msg);
 									oos.writeObject(res);
+									oos.flush();
 								}
 								else
 								{
 									ClientThread ct =  Server.clientHolder.get(id); //gives the client thread object
 									try
 									{
-										ObjectOutputStream oos = ct.objectOutputStream;
-										Response res = new Response(Response.Type.MSG.ordinal(),true,"sv_exit_successful");
-										oos.writeObject(res);
+										if(request.contents.equals("sv_exit")) {
+											ObjectOutputStream oos = ct.objectOutputStream;
+											Response res = new Response(Response.Type.MSG.ordinal(),true,"sv_exit_successful");
+											oos.writeObject(res);
+											oos.flush();
+										}
 									}
 									catch( Exception e )
 									{
@@ -381,12 +390,14 @@ class MessageHandler  extends Thread{
 									{
 										if( request.contents.equals("sv_logout") )
 										{
+											Message.println("sv_logout");
 											RequestAnalyser.logout(ct,request);
 										}	
 										else
 										{
+											Message.println("sv_exit");
 											Set<Integer> set1 = Server.roomsHolder.get(request.roomId);
-											set1.remove(id);	
+											set1.remove(id);
 										}
 									}
 								}
@@ -398,6 +409,7 @@ class MessageHandler  extends Thread{
 								ObjectOutputStream oos = ct.objectOutputStream;
 								Response res = new Response(Response.Type.MSG.ordinal(),true,msg);
 								oos.writeObject(res);
+								oos.flush();
 							}
 							
 						}
@@ -470,7 +482,7 @@ public class Server {
 		listOfRooms = new ArrayList<>();
 		clientHolder = new HashMap<>();
 		messagesTrackHashmap = new HashMap<>();
-		messagesTrackQueue = new PriorityQueue<MessageTrackObject>(10,new MessagesTrackComparator());
+		messagesTrackQueue = new PriorityQueue<MessageTrackObject>(100,new MessagesTrackComparator());
 		serverOperations = new ServerOperations();
 		serverOperations.start();
 		
