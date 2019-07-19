@@ -7,6 +7,9 @@ import java.lang.Thread.State;
 import java.net.Socket;
 import java.util.Scanner;
 
+import models.Request;
+import models.Response;
+
 public class Client {
 	int clientID=-1;
 	int roomId = -1;
@@ -78,14 +81,14 @@ public class Client {
 		objectOutputStream.writeObject(request);
 		objectOutputStream.flush();
 		response = (Response) objectInputStream.readObject();
-		if( response.success)
+		if( response.getSuccess())
 		{
-			Message.println(response.content);
+			Message.println(response.getContents());
 			connect();
 		}
 		else
 		{
-			Message.println(response.content);
+			Message.println(response.getContents());
 			mainOptions();
 		}
 	}
@@ -97,16 +100,16 @@ public class Client {
 			objectOutputStream.writeObject(request);
 			objectOutputStream.flush();
 			response = (Response) objectInputStream.readObject();
-			if( response.success)
+			if( response.getSuccess())
 			{
-				Message.println(response.content);
+				Message.println(response.getContents());
 				Message.println("Enter name of chat room:");
 				cont = scanner.next();
 				createAndJoinRoom(cont, false);
 			}
 			else
 			{
-				Message.println(response.content);
+				Message.println(response.getContents());
 				mainOptions();
 			}
 		}
@@ -132,19 +135,19 @@ public class Client {
 			//ObjectInputStream iis = (ObjectInputStream) obj;
 			throw new Exception("Object returned is not of type Response. but of " + obj.getClass().toString() );
 		}
-		if( response.success)
+		if( response.getSuccess())
 		{
 				//connected();
-				Message.println(response.content); //room created and joined successfully
-				int hashIndex = response.content.indexOf('#');
-				roomId = Integer.parseInt(response.content.substring(hashIndex+1, response.content.indexOf(" ", hashIndex)));
+				Message.println(response.getContents()); //room created and joined successfully
+				int hashIndex = response.getContents().indexOf('#');
+				roomId = Integer.parseInt(response.getContents().substring(hashIndex+1, response.getContents().indexOf(" ", hashIndex)));
 				Message.println(roomId+"");
 				//send message interface
 				conversation();
 		}
 		else
 		{
-			Message.println(response.content);
+			Message.println(response.getContents());
 			mainOptions();
 		}
 	}
@@ -200,14 +203,14 @@ public class Client {
 			while(true) {
 				try {
 					response = (Response) objectInputStream.readObject();
-					Message.println(response.content);
+					Message.println(response.getContents());
 					// || response.id != Response.Type.LOGOUT.ordinal()
-					if(response.content.equals("sv_exit_successful")) {
+					if(response.getContents().equals("sv_exit_successful")) {
 						synchronized(this){
 							this.wait();
 						}
 					}
-					else if(response.id == Response.Type.LOGOUT.ordinal()) {
+					else if(response.getId() == Response.Type.LOGOUT.ordinal()) {
 						synchronized(this){
 							this.wait();
 						}
@@ -248,29 +251,29 @@ public class Client {
 			objectOutputStream.flush();
 			
 			response = (Response) objectInputStream.readObject();
-			if( response.id == Response.Type.SIGN_UP.ordinal())
+			if( response.getId() == Response.Type.SIGN_UP.ordinal())
 			{
-				if(response.success) {
+				if(response.getSuccess()) {
 					Message.println("Signed Up Successfully.");
-					clientID = Integer.parseInt(response.content);
+					clientID = Integer.parseInt(response.getContents());
 					Message.println("Your ID is: "+ clientID);
 					mainOptions();
 	
 				}
 				else {
-					Message.println(response.content);
+					Message.println(response.getContents());
 					mainFunc();
 				}
 			}
-			else if(response.id == Request.Type.LOGIN.ordinal()) {
-				if(response.success) {
+			else if(response.getId() == Request.Type.LOGIN.ordinal()) {
+				if(response.getSuccess()) {
 					Message.println("Login Successfull ... ");
-					clientID = Integer.parseInt(response.content);
+					clientID = Integer.parseInt(response.getContents());
 					Message.println("Your ID is: "+ clientID);
 					mainOptions();
 				}
 				else {
-					Message.println(response.content);
+					Message.println(response.getContents());
 					mainFunc();
 				}
 			}

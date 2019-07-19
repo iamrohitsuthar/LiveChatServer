@@ -2,6 +2,8 @@ package com.chatroom;
 
 import java.io.ObjectOutputStream;
 
+import models.Response;
+
 public class ResponseHolder {
 	Response response;
 	ObjectOutputStream objectOutputStream;

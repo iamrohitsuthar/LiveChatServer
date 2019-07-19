@@ -5,6 +5,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
+import models.Request;
+
 public class ClientThread extends Thread{
 
 	Socket socket;
@@ -25,7 +27,7 @@ public class ClientThread extends Thread{
 			while(true)
 			{
 				request = (Request) objectInputStream.readObject();
-//				Message.println("Message recieved from " + request.clientId);
+//				Message.println("Message received from " + request.clientId);
 				Server.requestqueue.add(this);
 				if( Server.requestAnalyser.getState() == State.WAITING )
 				{
@@ -36,18 +38,18 @@ public class ClientThread extends Thread{
 			}
 			
 		} catch (IOException | ClassNotFoundException e) {
-			Message.println("Client Thread Deleted! request was " + request.contents + " client id = " + request.clientId);
+			Message.println("Client Thread Deleted! request was " + request.getContents() + " client id = " + request.getClientId());
 			if( e.getClass() == java.io.EOFException.class )
 			{
 				// if client exited the terminal itself
-				if(request.roomId != -1) {
-					this.request.contents = "sv_logout";
-					this.request.id = Request.Type.MSG.ordinal();
+				if(request.getRoomId() != -1) {
+					this.request.setContents("sv_logout");
+					this.request.setId(Request.Type.MSG.ordinal());
 					Server.requestqueue.add(this);
 				}
 				else {
-					this.request.contents = "";
-					this.request.id = Request.Type.LOGOUT.ordinal();
+					this.request.setContents("");
+					this.request.setId(Request.Type.LOGOUT.ordinal());
 					Server.requestqueue.add(this);
 				}
 				

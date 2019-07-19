@@ -1,10 +1,7 @@
 package com.chatroom;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.OutputStreamWriter;
-import java.lang.Thread.State;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.sql.Connection;
@@ -12,7 +9,6 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.text.Bidi;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -22,11 +18,12 @@ import java.util.LinkedList;
 import java.util.Map.Entry;
 import java.util.PriorityQueue;
 import java.util.Queue;
-import java.util.Random;
 import java.util.Scanner;
 import java.util.Set;
-
 import com.mysql.jdbc.PreparedStatement;
+import configuration.Config;
+import models.Request;
+import models.Response;
 
 class RequestAnalyser extends Thread{
 	String name = null;
@@ -51,13 +48,13 @@ class RequestAnalyser extends Thread{
 					}
 				clientThread = Server.requestqueue.poll();
 				request = clientThread.request;
-				switch(request.id)
+				switch(request.getId())
 				{
 					case 1:
 						int clientID = -1;
 						
 						//first check if the user already exists or not
-						name = request.contents;
+						name = request.getContents();
 						query = "SELECT " +Config.CLIENT_ID+ " from "+ Config.TABLE_NAME + " WHERE " + Config.CLIENT_NAME+"=?";
 						preparedStatement = Server.connection.prepareStatement(query);
 						preparedStatement.setString(1,name);
@@ -67,7 +64,7 @@ class RequestAnalyser extends Thread{
 							//if user is not already present then insert data into database
 							String query =  "INSERT INTO " + Config.TABLE_NAME + "("+Config.CLIENT_NAME+") VALUES(?)";
 							preparedStatement = (PreparedStatement) Server.connection.prepareStatement(query,Statement.RETURN_GENERATED_KEYS);
-							preparedStatement.setString(1, request.contents);
+							preparedStatement.setString(1, request.getContents());
 							
 							int response_code = preparedStatement.executeUpdate();
 							if(response_code > 0) {
@@ -99,7 +96,7 @@ class RequestAnalyser extends Thread{
 						}
 						break;
 					case 2:
-						name = request.contents;
+						name = request.getContents();
 						query = "SELECT " +Config.CLIENT_ID+ " from "+ Config.TABLE_NAME + " WHERE " + Config.CLIENT_NAME+"=?";
 						preparedStatement = Server.connection.prepareStatement(query);
 						preparedStatement.setString(1,name);
@@ -134,7 +131,7 @@ class RequestAnalyser extends Thread{
 					case 4:
 							//create room
 							int roomId = Server.getRoomId();
-							String roomName = request.contents;
+							String roomName = request.getContents();
 							
 							if(Server.roomsMapping.containsValue(roomName)) {
 								//if the room name is already present
@@ -145,7 +142,7 @@ class RequestAnalyser extends Thread{
 								Server.roomsMapping.put(roomId,roomName);
 								Server.listOfRooms.add(roomId);
 								clientIds = new HashSet<>();
-								clientIds.add(request.clientId); //insert the client into the set
+								clientIds.add(request.getClientId()); //insert the client into the set
 								Server.roomsHolder.put(roomId, clientIds);
 								response = new Response( 4 , true, "Room #" + roomId  + " created and joined successfully");
 							}
@@ -160,8 +157,8 @@ class RequestAnalyser extends Thread{
 					case 5:
 							//join room
 						
-							String roomName1 = request.contents;
-							int clientId = request.clientId;
+							String roomName1 = request.getContents();
+							int clientId = request.getClientId();
 							int roomId1 = -1;
 							roomId1 = Server.getKey(roomName1);
 							
@@ -210,7 +207,7 @@ class RequestAnalyser extends Thread{
 							
 					case 7:
 							//message
-							if(request.contents.equals(" ") || request.contents.equals(""))
+							if(request.getContents().equals(" ") || request.getContents().equals(""))
 								break;
 							Server.messagequeue.add(request);
 							if( Server.messageHandler.getState() == State.WAITING )
@@ -237,10 +234,10 @@ class RequestAnalyser extends Thread{
 		Response response = new Response( Response.Type.LOGOUT.ordinal() , true, "Logout Succesfully");
 		Server.responseMakerQueue.add(new ResponseHolder(response, clientThread.objectOutputStream));
 		
-		if(request.roomId != -1)
-			Server.roomsHolder.get(request.roomId).remove(request.clientId);
+		if(request.getRoomId() != -1)
+			Server.roomsHolder.get(request.getRoomId()).remove(request.getClientId());
 		
-		Server.clientHolder.remove(request.clientId);
+		Server.clientHolder.remove(request.getClientId());
 		
 		if( Server.responseMaker.getState() == State.WAITING )
 		{
@@ -248,7 +245,7 @@ class RequestAnalyser extends Thread{
 				Server.responseMaker.notify();
 			}
 		}
-		Message.println( request.clientId + " logged out sucessfully");
+		Message.println( request.getClientId() + " logged out sucessfully");
 	}
 }
 
@@ -304,24 +301,24 @@ class MessageHandler  extends Thread{
 				//TODO: get from database
 				query = "SELECT " +Config.CLIENT_NAME+ " from "+ Config.TABLE_NAME + " WHERE " + Config.CLIENT_ID+"=?";
 				preparedStatement = Server.connection.prepareStatement(query);
-				preparedStatement.setInt(1,request.clientId);
+				preparedStatement.setInt(1,request.getClientId());
 				resultSet = preparedStatement.executeQuery();
 				
 				if(resultSet.next())
 					sender = resultSet.getString(1);
 
-				Set<Integer> set = Server.roomsHolder.get(request.roomId);
+				Set<Integer> set = Server.roomsHolder.get(request.getRoomId());
 				
 				//update the user message count
 				
-				Server.messagesTrackHashmap.put(request.clientId, Server.messagesTrackHashmap.get(request.clientId)+1);
+				Server.messagesTrackHashmap.put(request.getClientId(), Server.messagesTrackHashmap.get(request.getClientId())+1);
 				
 				
-				boolean personalMessage = request.contents.indexOf("@") !=-1? true: false;
+				boolean personalMessage = request.getContents().indexOf("@") !=-1? true: false;
 				if(personalMessage)
 				{
 
-					reciever = request.contents.substring(request.contents.indexOf("@")+1,request.contents.indexOf(" "));
+					reciever = request.getContents().substring(request.getContents().indexOf("@")+1,request.getContents().indexOf(" "));
 					Message.println(reciever);
 					query = "SELECT " +Config.CLIENT_ID+ " from "+ Config.TABLE_NAME + " WHERE " + Config.CLIENT_NAME+"=?";
 					preparedStatement = Server.connection.prepareStatement(query);
@@ -331,7 +328,7 @@ class MessageHandler  extends Thread{
 					if(resultSet.next())
 					{
 						recieverId = resultSet.getInt(1);
-						msg = "\n<"+sender+"> ( PersonalMessage ): "+request.contents.substring(request.contents.indexOf(" "));
+						msg = "\n<"+sender+"> ( PersonalMessage ): "+request.getContents().substring(request.getContents().indexOf(" "));
 						ClientThread ct =  Server.clientHolder.get(recieverId); //gives the client thread object
 						ObjectOutputStream oos = ct.objectOutputStream;
 						Response res = new Response(Response.Type.MSG.ordinal(),true,msg);
@@ -343,7 +340,7 @@ class MessageHandler  extends Thread{
 					{
 						// user name wrong
 						msg = "\n<server>: Wrong username " + reciever;
-						ClientThread ct =  Server.clientHolder.get(request.clientId); //gives the client thread object
+						ClientThread ct =  Server.clientHolder.get(request.getClientId()); //gives the client thread object
 						ObjectOutputStream oos = ct.objectOutputStream;
 						Response res = new Response(Response.Type.MSG.ordinal(),true,msg);
 						oos.writeObject(res);
@@ -356,12 +353,12 @@ class MessageHandler  extends Thread{
 				while(iterator.hasNext()) {
 					int id = iterator.next();
 					//take id and check if its not sender and then create response
-					//if(id != request.clientId) {
+					//if(id != request.getClientId()) {
 						try {
-							if(request.contents.equals("sv_exit") || request.contents.equals("sv_logout"))
+							if(request.getContents().equals("sv_exit") || request.getContents().equals("sv_logout"))
 							{
 								msg = "\n" + sender + " has left the chat\n";
-								if(id != request.clientId)
+								if(id != request.getClientId())
 								{
 									ClientThread ct =  Server.clientHolder.get(id); //gives the client thread object
 									ObjectOutputStream oos = ct.objectOutputStream;
@@ -374,7 +371,7 @@ class MessageHandler  extends Thread{
 									ClientThread ct =  Server.clientHolder.get(id); //gives the client thread object
 									try
 									{
-										if(request.contents.equals("sv_exit")) {
+										if(request.getContents().equals("sv_exit")) {
 											ObjectOutputStream oos = ct.objectOutputStream;
 											Response res = new Response(Response.Type.MSG.ordinal(),true,"sv_exit_successful");
 											oos.writeObject(res);
@@ -388,7 +385,7 @@ class MessageHandler  extends Thread{
 									}
 									finally
 									{
-										if( request.contents.equals("sv_logout") )
+										if( request.getContents().equals("sv_logout") )
 										{
 											Message.println("sv_logout");
 											RequestAnalyser.logout(ct,request);
@@ -396,7 +393,7 @@ class MessageHandler  extends Thread{
 										else
 										{
 											Message.println("sv_exit");
-											Set<Integer> set1 = Server.roomsHolder.get(request.roomId);
+											Set<Integer> set1 = Server.roomsHolder.get(request.getRoomId());
 											set1.remove(id);
 										}
 									}
@@ -404,7 +401,7 @@ class MessageHandler  extends Thread{
 							}
 							else
 							{
-								msg = "\n<"+sender+">: "+request.contents;
+								msg = "\n<"+sender+">: "+request.getContents();
 								ClientThread ct =  Server.clientHolder.get(id); //gives the client thread object
 								ObjectOutputStream oos = ct.objectOutputStream;
 								Response res = new Response(Response.Type.MSG.ordinal(),true,msg);
