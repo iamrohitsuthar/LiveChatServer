@@ -1,4 +1,4 @@
-package com.chatroom;
+package com.chatroom.others;
 
 public class Message {
 	public static <T> void print(T param) {

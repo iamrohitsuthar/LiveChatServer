@@ -1,7 +1,8 @@
-package com.chatroom;
+package com.chatroom.server;
 
 import java.util.Map;
 import java.util.Scanner;
+import com.chatroom.others.Message;
 
 public class ServerOperations extends Thread {
 	static Scanner scanner = new Scanner(System.in);

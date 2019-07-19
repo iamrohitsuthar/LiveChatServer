@@ -1,4 +1,4 @@
-package com.chatroom;
+package com.chatroom.server;
 
 public class ServerExec {
 

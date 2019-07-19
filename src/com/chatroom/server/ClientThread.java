@@ -1,11 +1,12 @@
-package com.chatroom;
+package com.chatroom.server;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
-import models.Request;
+import com.chatroom.models.Request;
+import com.chatroom.others.Message;
 
 public class ClientThread extends Thread{
 

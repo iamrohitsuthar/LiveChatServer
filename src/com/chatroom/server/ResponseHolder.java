@@ -1,8 +1,8 @@
-package com.chatroom;
+package com.chatroom.server;
 
 import java.io.ObjectOutputStream;
 
-import models.Response;
+import com.chatroom.models.Response;
 
 public class ResponseHolder {
 	Response response;

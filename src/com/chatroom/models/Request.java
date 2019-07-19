@@ -1,4 +1,4 @@
-package models;
+package com.chatroom.models;
 import java.io.Serializable;
 public class Request implements Serializable{
 	public enum Type {

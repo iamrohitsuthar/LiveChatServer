@@ -1,10 +1,10 @@
-package com.chatroom;
+package com.chatroom.Database;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-import configuration.Config;
+import com.chatroom.configuration.Config;
 
 
 public class createdb {
