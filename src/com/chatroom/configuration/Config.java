@@ -1,4 +1,4 @@
-package configuration;
+package com.chatroom.configuration;
 
 public interface Config {
 	public String USER_NAME  = "root";

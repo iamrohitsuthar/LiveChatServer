@@ -1,4 +1,4 @@
-package com.chatroom;
+package com.chatroom.client;
 
 public class ClientExec {
 	public static void main(String[] args) {

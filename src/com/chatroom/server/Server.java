@@ -1,4 +1,4 @@
-package com.chatroom;
+package com.chatroom.server;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -21,9 +21,10 @@ import java.util.Queue;
 import java.util.Scanner;
 import java.util.Set;
 import com.mysql.jdbc.PreparedStatement;
-import configuration.Config;
-import models.Request;
-import models.Response;
+import com.chatroom.configuration.Config;
+import com.chatroom.models.Request;
+import com.chatroom.models.Response;
+import com.chatroom.others.Message;
 
 class RequestAnalyser extends Thread{
 	String name = null;

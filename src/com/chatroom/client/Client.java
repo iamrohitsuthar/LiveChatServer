@@ -1,4 +1,4 @@
-package com.chatroom;
+package com.chatroom.client;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -7,8 +7,9 @@ import java.lang.Thread.State;
 import java.net.Socket;
 import java.util.Scanner;
 
-import models.Request;
-import models.Response;
+import com.chatroom.models.Request;
+import com.chatroom.models.Response;
+import com.chatroom.others.Message;
 
 public class Client {
 	int clientID=-1;

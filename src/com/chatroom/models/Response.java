@@ -1,4 +1,4 @@
-package models;
+package com.chatroom.models;
 
 import java.io.Serializable;
 
