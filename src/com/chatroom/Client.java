@@ -259,7 +259,7 @@ public class Client {
 				}
 				else {
 					Message.println(response.content);
-					System.exit(1);
+					mainFunc();
 				}
 			}
 			else if(response.id == Request.Type.LOGIN.ordinal()) {
@@ -271,7 +271,7 @@ public class Client {
 				}
 				else {
 					Message.println(response.content);
-					System.exit(1);
+					mainFunc();
 				}
 			}
 
