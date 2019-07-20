@@ -22,6 +22,7 @@ import java.util.Scanner;
 import java.util.Set;
 import com.mysql.jdbc.PreparedStatement;
 import com.chatroom.configuration.Config;
+import com.chatroom.models.MessageTrackObject;
 import com.chatroom.models.Request;
 import com.chatroom.models.Response;
 import com.chatroom.others.Message;
@@ -63,9 +64,14 @@ class RequestAnalyser extends Thread{
 						
 						if(!resultSet.isBeforeFirst()) {							
 							//if user is not already present then insert data into database
-							String query =  "INSERT INTO " + Config.TABLE_NAME + "("+Config.CLIENT_NAME+") VALUES(?)";
+							String query =  "INSERT INTO " + Config.TABLE_NAME + "("+Config.CLIENT_NAME+","+ Config.CLIENT_PWD +") VALUES(?,?)";
 							preparedStatement = (PreparedStatement) Server.connection.prepareStatement(query,Statement.RETURN_GENERATED_KEYS);
-							preparedStatement.setString(1, request.getContents());
+							String requestContent = request.getContents().trim();
+							String username = requestContent.substring(0, requestContent.indexOf("#"));
+							String pwd = requestContent.substring(requestContent.indexOf("#")+1);
+							preparedStatement.setString(1, username);
+							preparedStatement.setString(2, pwd);
+							
 							
 							int response_code = preparedStatement.executeUpdate();
 							if(response_code > 0) {
@@ -97,14 +103,18 @@ class RequestAnalyser extends Thread{
 						}
 						break;
 					case 2:
-						name = request.getContents();
-						query = "SELECT " +Config.CLIENT_ID+ " from "+ Config.TABLE_NAME + " WHERE " + Config.CLIENT_NAME+"=?";
+						String requestContent = request.getContents().trim();
+						String name = requestContent.substring(0, requestContent.indexOf("#"));
+						String pwd = requestContent.substring(requestContent.indexOf("#")+1);
+						query = "SELECT " +Config.CLIENT_ID+ " from "+ Config.TABLE_NAME + " WHERE " + Config.CLIENT_NAME+"=? AND " + Config.CLIENT_PWD + "=?";
 						preparedStatement = Server.connection.prepareStatement(query);
 						preparedStatement.setString(1,name);
+						preparedStatement.setString(2,pwd);
+						
 						ResultSet resultSet = preparedStatement.executeQuery();
 						if(!resultSet.isBeforeFirst()) {
 							//no data
-							response = new Response( 2 , false, "Username is not found in database ...");
+							response = new Response( 2 , false, "Check your username and password ...");
 						}
 						else {
 							resultSet.next();
@@ -130,6 +140,7 @@ class RequestAnalyser extends Thread{
 							logout(clientThread,request);
 							break;
 					case 4:
+							//TODO: use the RoomProperties Object and check for password while joining room
 							//create room
 							int roomId = Server.getRoomId();
 							String roomName = request.getContents();

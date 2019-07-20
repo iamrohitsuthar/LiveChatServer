@@ -1,4 +1,4 @@
-package com.chatroom.server;
+package com.chatroom.models;
 
 public class MessageTrackObject {
 	int clientId;
