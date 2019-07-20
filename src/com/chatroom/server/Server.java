@@ -16,6 +16,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map.Entry;
+
+import javax.sound.midi.Receiver;
+
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Scanner;
@@ -58,20 +61,20 @@ class RequestAnalyser extends Thread{
 					case 1:
 						int clientID = -1;
 						
+						String requestContent = request.getContents().trim();
+						String username = requestContent.substring(0, requestContent.indexOf("#"));
+						
 						//first check if the user already exists or not
-						name = request.getContents();
 						query = "SELECT " +Config.CLIENT_ID+ " from "+ Config.TABLE_NAME + " WHERE " + Config.CLIENT_NAME+"=?";
 						preparedStatement = Server.connection.prepareStatement(query);
-						preparedStatement.setString(1,name);
+						preparedStatement.setString(1,username);
 						resultSet = preparedStatement.executeQuery();
 						
 						if(!resultSet.isBeforeFirst()) {							
 							//if user is not already present then insert data into database
 							String query =  "INSERT INTO " + Config.TABLE_NAME + "("+Config.CLIENT_NAME+","+ Config.CLIENT_PWD +") VALUES(?,?)";
-							preparedStatement = (PreparedStatement) Server.connection.prepareStatement(query,Statement.RETURN_GENERATED_KEYS);
-							String requestContent = request.getContents().trim();
-							String username = requestContent.substring(0, requestContent.indexOf("#"));
 							String pwd = requestContent.substring(requestContent.indexOf("#")+1);
+							preparedStatement = (PreparedStatement) Server.connection.prepareStatement(query,Statement.RETURN_GENERATED_KEYS);
 							preparedStatement.setString(1, username);
 							preparedStatement.setString(2, pwd);
 							
@@ -106,7 +109,7 @@ class RequestAnalyser extends Thread{
 						}
 						break;
 					case 2:
-						String requestContent = request.getContents().trim();
+						requestContent = request.getContents().trim();
 						String name = requestContent.substring(0, requestContent.indexOf("#"));
 						String pwd = requestContent.substring(requestContent.indexOf("#")+1);
 						query = "SELECT " +Config.CLIENT_ID+ " from "+ Config.TABLE_NAME + " WHERE " + Config.CLIENT_NAME+"=? AND " + Config.CLIENT_PWD + "=?";
@@ -177,7 +180,7 @@ class RequestAnalyser extends Thread{
 							roomId1 = Server.getKey(roomName1);
 							
 							if(Server.listOfRooms.contains(roomId1)) {
-								//insert the client id in the set of the specific roomid in hash map
+								//insert the client id in the set of the specific room id in hash map
 								if(Server.roomsHolder.get(roomId1).add(clientId)) {
 									response = new Response( Response.Type.JOIN_ROOM.ordinal() , true, "Room #" + roomId1 + " joined successfully ...");
 								}
@@ -287,7 +290,7 @@ class ResponseMaker  extends Thread{
 				responseHolder.objectOutputStream.flush();
 			}
 			catch (Exception e) {
-				
+				LogFileWriter.Log(e.getMessage());
 			}
 		}
 	}
@@ -330,20 +333,23 @@ class MessageHandler  extends Thread{
 				
 				Server.messagesTrackHashmap.put(request.getClientId(), Server.messagesTrackHashmap.get(request.getClientId())+1);
 				
-				
-				boolean personalMessage = request.getContents().indexOf("@") !=-1? true: false;
+				boolean personalMessage = request.getContents().indexOf("@") != -1 ? true : false;
 				if(personalMessage)
 				{
-
 					reciever = request.getContents().substring(request.getContents().indexOf("@")+1,request.getContents().indexOf(" "));
 					query = "SELECT " +Config.CLIENT_ID+ " from "+ Config.TABLE_NAME + " WHERE " + Config.CLIENT_NAME+"=?";
 					preparedStatement = Server.connection.prepareStatement(query);
 					preparedStatement.setString(1,reciever);
 					resultSet = preparedStatement.executeQuery();
-					
-					if(resultSet.next())
-					{
+					if(!resultSet.isBeforeFirst()) {
+						recieverId = -1;	
+					}
+					else {
+						resultSet.next();
 						recieverId = resultSet.getInt(1);
+					}
+					if(recieverId != -1)
+					{
 						msg = "\n<"+sender+"> ( PersonalMessage ): "+request.getContents().substring(request.getContents().indexOf(" "));
 						ClientThread ct =  Server.clientHolder.get(recieverId); //gives the client thread object
 						ObjectOutputStream oos = ct.objectOutputStream;
@@ -361,6 +367,7 @@ class MessageHandler  extends Thread{
 						Response res = new Response(Response.Type.MSG.ordinal(),true,msg);
 						oos.writeObject(res);
 						oos.flush();
+						continue;
 						
 					}
 				}
@@ -402,12 +409,10 @@ class MessageHandler  extends Thread{
 									{
 										if( request.getContents().equals("sv_logout") )
 										{
-											Message.println("sv_logout");
 											RequestAnalyser.logout(ct,request);
 										}	
 										else
 										{
-											Message.println("sv_exit");
 											Set<Integer> set1 = Server.roomsHolder.get(request.getRoomId());
 											set1.remove(id);
 										}
@@ -501,7 +506,7 @@ public class Server {
 			Class.forName("com.mysql.jdbc.Driver");
 			connection = DriverManager.getConnection(Config.DATABASE_URL+"/"+Config.DATABASE_NAME,Config.USER_NAME,Config.USER_PWD);
 		} catch (SQLException | ClassNotFoundException e) {
-			e.printStackTrace();
+			LogFileWriter.Log(e.getMessage());
 		}
 	}
 	
@@ -525,6 +530,7 @@ public class Server {
 			Connection connection = DriverManager.getConnection(Config.DATABASE_URL+"/"+Config.DATABASE_NAME,Config.USER_NAME,Config.USER_PWD);
 			String sql = "select client_name from users where client_id = ?";
 			java.sql.PreparedStatement preparedStatement = connection.prepareStatement(sql);
+			preparedStatement.setInt(1, id);
 			ResultSet resultSet = preparedStatement.executeQuery();
 			resultSet.next();
 			name = resultSet.getString(1);
