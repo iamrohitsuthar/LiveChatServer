@@ -3,6 +3,7 @@ package com.chatroom.server;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
 import java.net.Socket;
 
 import com.chatroom.models.Request;
@@ -39,7 +40,8 @@ public class ClientThread extends Thread{
 			}
 			
 		} catch (IOException | ClassNotFoundException e) {
-			LogFileWriter.Log(e.getMessage());
+			e.printStackTrace(new PrintWriter(Server.errors));
+			LogFileWriter.Log(Server.errors.toString());
 			if( e.getClass() == java.io.EOFException.class )
 			{
 				// if client exited the terminal itself

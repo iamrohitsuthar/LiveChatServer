@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.Thread.State;
 import java.net.Socket;
 import java.util.Scanner;
@@ -14,6 +16,7 @@ import com.chatroom.models.Response;
 import com.chatroom.others.Hash;
 import com.chatroom.others.LogFileWriter;
 import com.chatroom.others.Message;
+import com.chatroom.server.Server;
 
 public class Client {
 	private int clientID=-1;
@@ -29,11 +32,13 @@ public class Client {
 	private Request request = null;
 	private Response response = null;
 	private MessageListener messageListener;
+	private static StringWriter errors;
 	
 	public Client(String host, int port) {
 		this.host = host;
 		this.port = port;
 		messageListener = new MessageListener();
+		errors = new StringWriter();
 		
 		//create the log file if it is not present
 		String path = System.getProperty("user.home");
@@ -47,8 +52,8 @@ public class Client {
 			try {
 				f.createNewFile();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				e.printStackTrace(new PrintWriter(errors));
+				LogFileWriter.Log(errors.toString());
 			}
 		}
 	}
@@ -60,7 +65,8 @@ public class Client {
 			objectInputStream = new ObjectInputStream(socket.getInputStream());
 			mainFunc();
 		} catch (IOException e) {
-			LogFileWriter.Log(e.getMessage());
+			e.printStackTrace(new PrintWriter(errors));
+			LogFileWriter.Log(errors.toString());
 		}
 	}
 	
@@ -92,7 +98,8 @@ public class Client {
 			}
 		}
 		catch (Exception e) {
-			LogFileWriter.Log(e.getMessage());
+			e.printStackTrace(new PrintWriter(errors));
+			LogFileWriter.Log(errors.toString());
 		}
 	}
 	
@@ -136,7 +143,8 @@ public class Client {
 			}
 		}
 		catch(Exception e) {
-			LogFileWriter.Log(e.getMessage());
+			e.printStackTrace(new PrintWriter(errors));
+			LogFileWriter.Log(errors.toString());
 		}
 	}
 
@@ -238,10 +246,12 @@ public class Client {
 					}
 					
 				} catch (ClassNotFoundException | IOException e) {
-					LogFileWriter.Log(e.getMessage());
+					e.printStackTrace(new PrintWriter(errors));
+					LogFileWriter.Log(errors.toString());
 					break;
 				} catch (InterruptedException e) {
-					LogFileWriter.Log(e.getMessage());
+					e.printStackTrace(new PrintWriter(errors));
+					LogFileWriter.Log(errors.toString());
 				}
 			}
 		}
@@ -307,7 +317,8 @@ public class Client {
 
 		}
 		catch(Exception e) {
-			LogFileWriter.Log(e.getMessage());
+			e.printStackTrace(new PrintWriter(errors));
+			LogFileWriter.Log(errors.toString());
 		}
 	}
 }

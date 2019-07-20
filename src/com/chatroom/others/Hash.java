@@ -1,10 +1,15 @@
 package com.chatroom.others;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import com.chatroom.server.Server;
+
 public class Hash {
+	static StringWriter errors = new StringWriter();
 	public static String getHash(String input) {
 		String hash;
 		try {
@@ -17,8 +22,8 @@ public class Hash {
 			}
 			return hash;
 		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			e.printStackTrace(new PrintWriter(errors));
+			LogFileWriter.Log(errors.toString());
 			return null;
 		}
 		
