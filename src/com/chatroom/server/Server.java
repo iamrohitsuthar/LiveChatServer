@@ -20,6 +20,8 @@ import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Scanner;
 import java.util.Set;
+
+import com.mysql.jdbc.Driver;
 import com.mysql.jdbc.PreparedStatement;
 import com.chatroom.configuration.Config;
 import com.chatroom.models.MessageTrackObject;
@@ -242,7 +244,6 @@ class RequestAnalyser extends Thread{
 	}
 
 	public static void logout(ClientThread clientThread, Request request) {
-		// TODO Auto-generated method stub
 		Response response = new Response( Response.Type.LOGOUT.ordinal() , true, "Logout Succesfully");
 		Server.responseMakerQueue.add(new ResponseHolder(response, clientThread.objectOutputStream));
 		
@@ -257,7 +258,12 @@ class RequestAnalyser extends Thread{
 				Server.responseMaker.notify();
 			}
 		}
-		Message.println( request.getClientId() + " logged out sucessfully");
+		
+		if(request.getClientId() != -1)
+			Message.println( Server.getClientNameFromId(request.getClientId()) + " logged out sucessfully");
+		else
+			Message.println( request.getClientId() + " logged out sucessfully");
+		
 	}
 }
 
@@ -330,7 +336,6 @@ class MessageHandler  extends Thread{
 				{
 
 					reciever = request.getContents().substring(request.getContents().indexOf("@")+1,request.getContents().indexOf(" "));
-					Message.println(reciever);
 					query = "SELECT " +Config.CLIENT_ID+ " from "+ Config.TABLE_NAME + " WHERE " + Config.CLIENT_NAME+"=?";
 					preparedStatement = Server.connection.prepareStatement(query);
 					preparedStatement.setString(1,reciever);
@@ -391,8 +396,7 @@ class MessageHandler  extends Thread{
 									}
 									catch( Exception e )
 									{
-										Message.println("In Message Handler");
-										e.printStackTrace();
+										LogFileWriter.Log(e.getMessage());
 									}
 									finally
 									{
@@ -513,6 +517,25 @@ public class Server {
 	public static void shutdown() { 
 		Message.println("Server stopped");
 		System.exit(1);
+	}
+	
+	public static String getClientNameFromId(int id) {
+		String name;
+		try {
+			Connection connection = DriverManager.getConnection(Config.DATABASE_URL+"/"+Config.DATABASE_NAME,Config.USER_NAME,Config.USER_PWD);
+			String sql = "select client_name from users where client_id = ?";
+			java.sql.PreparedStatement preparedStatement = connection.prepareStatement(sql);
+			ResultSet resultSet = preparedStatement.executeQuery();
+			resultSet.next();
+			name = resultSet.getString(1);
+			return name;
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			LogFileWriter.Log(e.getMessage());
+			return null;
+		}
+		
 	}
 	
 	public static Integer getKey(String value) {
