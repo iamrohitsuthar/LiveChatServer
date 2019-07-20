@@ -39,7 +39,6 @@ public class ClientThread extends Thread{
 			}
 			
 		} catch (IOException | ClassNotFoundException e) {
-			Message.println("Client Thread Deleted! request was " + request.getContents() + " client id = " + request.getClientId());
 			if( e.getClass() == java.io.EOFException.class )
 			{
 				// if client exited the terminal itself

@@ -1,5 +1,6 @@
 package com.chatroom.client;
 
+import java.io.Console;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -9,22 +10,23 @@ import java.util.Scanner;
 
 import com.chatroom.models.Request;
 import com.chatroom.models.Response;
+import com.chatroom.others.Hash;
 import com.chatroom.others.Message;
 
 public class Client {
-	int clientID=-1;
-	int roomId = -1;
-	Scanner scanner = new Scanner(System.in);
-	int choice;
-	String cont;
-	String host = "";
-	int port = -1;
-	ObjectOutputStream objectOutputStream;
-	ObjectInputStream objectInputStream;
-	Socket socket;
-	Request request = null;
-	Response response = null;
-	MessageListener messageListener;
+	private int clientID=-1;
+	private int roomId = -1;
+	private Scanner scanner = new Scanner(System.in);
+	private int choice;
+	private String cont;
+	private String host = "";
+	private int port = -1;
+	private ObjectOutputStream objectOutputStream;
+	private ObjectInputStream objectInputStream;
+	private Socket socket;
+	private Request request = null;
+	private Response response = null;
+	private MessageListener messageListener;
 	
 	public Client(String host, int port) {
 		this.host = host;
@@ -72,7 +74,6 @@ public class Client {
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			Message.println("In MainOptions");
 		}
 	}
 	
@@ -103,8 +104,9 @@ public class Client {
 			response = (Response) objectInputStream.readObject();
 			if( response.getSuccess())
 			{
+				Message.println("****** List of available rooms are ******");
 				Message.println(response.getContents());
-				Message.println("Enter name of chat room:");
+				Message.print("Enter name of chat room:");
 				cont = scanner.next();
 				createAndJoinRoom(cont, false);
 			}
@@ -205,7 +207,6 @@ public class Client {
 				try {
 					response = (Response) objectInputStream.readObject();
 					Message.println(response.getContents());
-					// || response.id != Response.Type.LOGOUT.ordinal()
 					if(response.getContents().equals("sv_exit_successful")) {
 						synchronized(this){
 							this.wait();
@@ -229,18 +230,25 @@ public class Client {
 	}
 	
 	public void mainFunc() {
+		Console console = System.console();
 		try {
 			Message.println("1. SIGN UP \n2. LOGIN");
 			choice = scanner.nextInt();
 			if(choice == 1) {
-				Message.println("Enter username:");
+				Message.print("Enter username: ");
 				cont = scanner.next();
+				cont += "#";
+				char[] pwd = console.readPassword("Enter password: "); //take the password and separate it from user name by # delimiter
+				cont += Hash.getHash(new String(pwd));
 				request = new Request(Request.Type.SIGN_UP.ordinal(),clientID,roomId,cont);
 				Message.println("Signing Up ... ");
 			}
 			else if(choice == 2) {
-				Message.println("Enter username:");
+				Message.print("Enter username: ");
 				cont = scanner.next();
+				cont += "#";
+				char[] pwd = console.readPassword("Enter password: "); //take the password and separate it from user name by # delimiter
+				cont += Hash.getHash(new String(pwd));
 				request = new Request(Request.Type.LOGIN.ordinal(),clientID,roomId,cont);
 				Message.println("Logging In ... ");
 			}

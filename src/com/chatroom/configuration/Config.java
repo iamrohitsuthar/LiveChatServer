@@ -8,4 +8,5 @@ public interface Config {
 	public String TABLE_NAME = "users";
 	public String CLIENT_ID = "client_id";
 	public String CLIENT_NAME = "client_name";
+	public String CLIENT_PWD = "client_pwd";
 }
