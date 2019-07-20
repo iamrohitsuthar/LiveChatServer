@@ -13,7 +13,6 @@ public class ServerOperations extends Thread {
 		int input;
 		while(true) {
 			Message.println("1. For Messages logs");
-			//TODO : kitne user or rooms hai or queue ki size kitni hai
 			Message.println("2. Server Shutdown");
 			input = scanner.nextInt();
 			if(input == 1) {

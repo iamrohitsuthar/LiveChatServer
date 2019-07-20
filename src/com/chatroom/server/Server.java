@@ -2,6 +2,8 @@ package com.chatroom.server;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.sql.Connection;
@@ -242,7 +244,8 @@ class RequestAnalyser extends Thread{
 		}
 		catch( Exception e)
 		{
-			LogFileWriter.Log(e.getMessage());
+			e.printStackTrace(new PrintWriter(Server.errors));
+			LogFileWriter.Log(Server.errors.toString());
 		}
 	}
 
@@ -290,7 +293,8 @@ class ResponseMaker  extends Thread{
 				responseHolder.objectOutputStream.flush();
 			}
 			catch (Exception e) {
-				LogFileWriter.Log(e.getMessage());
+				e.printStackTrace(new PrintWriter(Server.errors));
+				LogFileWriter.Log(Server.errors.toString());
 			}
 		}
 	}
@@ -403,7 +407,8 @@ class MessageHandler  extends Thread{
 									}
 									catch( Exception e )
 									{
-										LogFileWriter.Log(e.getMessage());
+										e.printStackTrace(new PrintWriter(Server.errors));
+										LogFileWriter.Log(Server.errors.toString());
 									}
 									finally
 									{
@@ -431,12 +436,14 @@ class MessageHandler  extends Thread{
 							
 						}
 						catch(Exception e) {
-							LogFileWriter.Log(e.getMessage());
+							e.printStackTrace(new PrintWriter(Server.errors));
+							LogFileWriter.Log(Server.errors.toString());
 						}
 				}
 			}
 			catch (Exception e) {
-				LogFileWriter.Log(e.getMessage());
+				e.printStackTrace(new PrintWriter(Server.errors));
+				LogFileWriter.Log(Server.errors.toString());
 			}
 		}
 	}
@@ -480,7 +487,7 @@ public class Server {
 	static HashMap<Integer, Integer> messagesTrackHashmap;
 	static ServerOperations serverOperations;
 	static int roomIdGenerator = 0;
-	
+	static StringWriter errors;
 	public Server(int port)
 	{
 		this.port = port;
@@ -501,12 +508,14 @@ public class Server {
 		messagesTrackQueue = new PriorityQueue<MessageTrackObject>(100,new MessagesTrackComparator());
 		serverOperations = new ServerOperations();
 		serverOperations.start();
+		errors = new StringWriter();
 		
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 			connection = DriverManager.getConnection(Config.DATABASE_URL+"/"+Config.DATABASE_NAME,Config.USER_NAME,Config.USER_PWD);
 		} catch (SQLException | ClassNotFoundException e) {
-			LogFileWriter.Log(e.getMessage());
+			e.printStackTrace(new PrintWriter(Server.errors));
+			LogFileWriter.Log(Server.errors.toString());
 		}
 	}
 	
@@ -538,7 +547,8 @@ public class Server {
 			
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
-			LogFileWriter.Log(e.getMessage());
+			e.printStackTrace(new PrintWriter(Server.errors));
+			LogFileWriter.Log(Server.errors.toString());
 			return null;
 		}
 		
@@ -563,7 +573,8 @@ public class Server {
 
 			}
 		} catch (IOException e) {
-			LogFileWriter.Log(e.getMessage());
+			e.printStackTrace(new PrintWriter(Server.errors));
+			LogFileWriter.Log(Server.errors.toString());
 		}
 	}
 
