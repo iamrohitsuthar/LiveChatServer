@@ -6,6 +6,7 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 import com.chatroom.models.Request;
+import com.chatroom.others.LogFileWriter;
 import com.chatroom.others.Message;
 
 public class ClientThread extends Thread{
@@ -28,7 +29,6 @@ public class ClientThread extends Thread{
 			while(true)
 			{
 				request = (Request) objectInputStream.readObject();
-//				Message.println("Message received from " + request.clientId);
 				Server.requestqueue.add(this);
 				if( Server.requestAnalyser.getState() == State.WAITING )
 				{
@@ -39,6 +39,7 @@ public class ClientThread extends Thread{
 			}
 			
 		} catch (IOException | ClassNotFoundException e) {
+			LogFileWriter.Log(e.getMessage());
 			if( e.getClass() == java.io.EOFException.class )
 			{
 				// if client exited the terminal itself

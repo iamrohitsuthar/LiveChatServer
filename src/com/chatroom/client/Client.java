@@ -1,6 +1,7 @@
 package com.chatroom.client;
 
 import java.io.Console;
+import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -11,6 +12,7 @@ import java.util.Scanner;
 import com.chatroom.models.Request;
 import com.chatroom.models.Response;
 import com.chatroom.others.Hash;
+import com.chatroom.others.LogFileWriter;
 import com.chatroom.others.Message;
 
 public class Client {
@@ -32,6 +34,23 @@ public class Client {
 		this.host = host;
 		this.port = port;
 		messageListener = new MessageListener();
+		
+		//create the log file if it is not present
+		String path = System.getProperty("user.home");
+		path += "/CHATROOM";
+		File file = new File(path);
+		if(!file.exists())
+			file.mkdir();
+				
+		File f = new File(System.getProperty("user.home")+"/CHATROOM/LOGS.txt");
+		if(!f.exists()) {
+			try {
+				f.createNewFile();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	public void connect() {
@@ -41,7 +60,7 @@ public class Client {
 			objectInputStream = new ObjectInputStream(socket.getInputStream());
 			mainFunc();
 		} catch (IOException e) {
-			e.printStackTrace();
+			LogFileWriter.Log(e.getMessage());
 		}
 	}
 	
@@ -73,7 +92,7 @@ public class Client {
 			}
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			LogFileWriter.Log(e.getMessage());
 		}
 	}
 	
@@ -117,7 +136,7 @@ public class Client {
 			}
 		}
 		catch(Exception e) {
-			
+			LogFileWriter.Log(e.getMessage());
 		}
 	}
 
@@ -219,11 +238,10 @@ public class Client {
 					}
 					
 				} catch (ClassNotFoundException | IOException e) {
-					e.printStackTrace();
+					LogFileWriter.Log(e.getMessage());
 					break;
 				} catch (InterruptedException e) {
-					Message.println("THREAD ERROR");
-					e.printStackTrace();
+					LogFileWriter.Log(e.getMessage());
 				}
 			}
 		}
@@ -289,8 +307,7 @@ public class Client {
 
 		}
 		catch(Exception e) {
-			e.printStackTrace();
-			Message.println("In MainFunc");
+			LogFileWriter.Log(e.getMessage());
 		}
 	}
 }

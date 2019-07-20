@@ -25,6 +25,7 @@ import com.chatroom.configuration.Config;
 import com.chatroom.models.MessageTrackObject;
 import com.chatroom.models.Request;
 import com.chatroom.models.Response;
+import com.chatroom.others.LogFileWriter;
 import com.chatroom.others.Message;
 
 class RequestAnalyser extends Thread{
@@ -140,7 +141,6 @@ class RequestAnalyser extends Thread{
 							logout(clientThread,request);
 							break;
 					case 4:
-							//TODO: use the RoomProperties Object and check for password while joining room
 							//create room
 							int roomId = Server.getRoomId();
 							String roomName = request.getContents();
@@ -237,7 +237,7 @@ class RequestAnalyser extends Thread{
 		}
 		catch( Exception e)
 		{
-			e.printStackTrace();
+			LogFileWriter.Log(e.getMessage());
 		}
 	}
 
@@ -310,7 +310,6 @@ class MessageHandler  extends Thread{
 					}
 				request = Server.messagequeue.poll();
 				
-				//TODO: get from database
 				query = "SELECT " +Config.CLIENT_NAME+ " from "+ Config.TABLE_NAME + " WHERE " + Config.CLIENT_ID+"=?";
 				preparedStatement = Server.connection.prepareStatement(query);
 				preparedStatement.setInt(1,request.getClientId());
@@ -423,13 +422,12 @@ class MessageHandler  extends Thread{
 							
 						}
 						catch(Exception e) {
-							Message.println(id + " removed from server");
+							LogFileWriter.Log(e.getMessage());
 						}
-					//}
 				}
 			}
 			catch (Exception e) {
-				e.printStackTrace();
+				LogFileWriter.Log(e.getMessage());
 			}
 		}
 	}
@@ -536,7 +534,7 @@ public class Server {
 
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			LogFileWriter.Log(e.getMessage());
 		}
 	}
 

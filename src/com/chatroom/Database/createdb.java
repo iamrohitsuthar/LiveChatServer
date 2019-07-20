@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 import com.chatroom.configuration.Config;
+import com.chatroom.others.LogFileWriter;
 
 
 public class createdb {
@@ -32,17 +33,17 @@ public class createdb {
 			
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LogFileWriter.Log(e.getMessage());
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LogFileWriter.Log(e.getMessage());
 		}
 		finally {
 			try {
 				connection.close(); //close the database connection
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				LogFileWriter.Log(e.getMessage());
 			}
 		}
 	}
