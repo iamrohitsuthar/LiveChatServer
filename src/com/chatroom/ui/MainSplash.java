@@ -25,11 +25,11 @@ public class MainSplash {
 	public MainSplash() throws IOException {
 		jFrame = new JFrame("CHATROOM");
 		
-		BufferedImage myImage1 = ImageIO.read(new File(System.getProperty("user.home")+"/logo.png"));
+		BufferedImage myImage1 = ImageIO.read(this.getClass().getResource("/logo.png"));
 		Image iconLogo = myImage1.getScaledInstance(150, 150, BufferedImage.SCALE_DEFAULT);
 		
 		jFrame.setContentPane(new JPanel() {
-			BufferedImage myImage = ImageIO.read(new File(System.getProperty("user.home")+"/background.jpg"));
+			BufferedImage myImage = ImageIO.read(this.getClass().getResource("/background.jpg"));
 			public void paintComponent(Graphics g) {
 				super.paintComponent(g);
 				g.drawImage(myImage, 0, 0, this);
@@ -40,10 +40,12 @@ public class MainSplash {
 		jBtnSignUp.setPreferredSize(new Dimension(150,35));
 		jBtnSignUp.setBackground(Color.WHITE);
 		jBtnSignUp.setBorder(new LineBorder(Color.blue, 3));
+		jBtnSignUp.setFocusPainted(false);
 		
 		jBtnSignIn = new JButton("Sign In ");
 		jBtnSignIn.setPreferredSize(new Dimension(150,35));
 		jBtnSignIn.setBorder(new LineBorder(Color.blue, 3));
+		jBtnSignIn.setFocusPainted(false);
 		
 		jFrame.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
