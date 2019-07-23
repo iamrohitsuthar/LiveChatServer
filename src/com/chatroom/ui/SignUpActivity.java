@@ -134,7 +134,12 @@ public class SignUpActivity {
 			
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				new SignInActivity();
+				try {
+					new SignInActivity();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
 		});
 	}
