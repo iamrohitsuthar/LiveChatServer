@@ -49,7 +49,12 @@ public class MainSplash {
 		jBtnSignUp.addActionListener(new ActionListener() {	
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				new SignUpActivity();
+				try {
+					new SignUpActivity();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 				
 			}
 		});
