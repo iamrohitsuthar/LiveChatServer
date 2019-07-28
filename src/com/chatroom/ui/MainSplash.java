@@ -78,7 +78,7 @@ public class MainSplash {
 	private void initializeAllWithProperties() {
 		jBtnSignUp.setPreferredSize(new Dimension(150,35));
 		jBtnSignUp.setBackground(new Color(108, 99, 255));
-		//jBtnSignUp.setBorder(new LineBorder(Color.blue, 3));
+		jBtnSignUp.setBorder(new LineBorder(Color.white, 0));
 		jBtnSignUp.setForeground(Color.white);
 		jBtnSignUp.setFocusPainted(false);
 		

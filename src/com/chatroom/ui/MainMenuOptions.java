@@ -126,13 +126,18 @@ public class MainMenuOptions {
 		
 		jFrame.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
-		Insets buttonInsets = new Insets(4, 4, 4, 4);
-		Insets logoInsets = new InsetsUIResource(0, 0, 50, 0);
-		Insets textTitle = new Insets(4, 4, 20, 4);
+		Insets textTitle = new Insets(4, 100, 20, 4);
+		Insets logoInsets = new InsetsUIResource(0, 200, 50, 0);
+		Insets buttonInsets = new Insets(4, 200, 20, 4);
 		
-		c.anchor = GridBagConstraints.CENTER;
+		c.anchor = GridBagConstraints.NORTHWEST;
+		c.weightx = 1.0;
+		c.weighty = 0;
+		c.gridwidth = 1;
+		c.gridheight = 1;
 		c.insets = logoInsets;
 		c.gridy = 1;
+		
 		//setting logo
 		jLabel = new JLabel(new ImageIcon(iconLogo));
 		jLabel.setBounds(0, 0, 100, 100);
