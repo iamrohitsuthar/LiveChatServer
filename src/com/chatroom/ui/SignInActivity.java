@@ -2,6 +2,7 @@ package com.chatroom.ui;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -27,18 +28,18 @@ public class SignInActivity {
 	private JButton jBtnSignIn;
 	private JTextField jTvUsername;
 	private JPasswordField jTvpassword;
-	private Image iconLogo;
-	private CompoundBorder compoundBorder ;
+	private CompoundBorder compoundBorder;
+	private CompoundBorder compoundBorderAfterClick;
 	private JLabel jLabelSignup;
 	private JLabel jLabelSignIntitle;
+	private BufferedImage iconLogo;
 	
 	
 	public SignInActivity() throws IOException {
 		jFrame = new JFrame("CHATROOM Sign In");
 		
 		//scaling logo
-		BufferedImage myImage1 = ImageIO.read(this.getClass().getResource("/logo.png"));
-		iconLogo = myImage1.getScaledInstance(150, 150, BufferedImage.SCALE_DEFAULT);
+		iconLogo = ImageIO.read(this.getClass().getResource("/logo.png"));
 		
 		//setting main background
 		jFrame.setContentPane(new JPanel() {
@@ -49,12 +50,16 @@ public class SignInActivity {
 			}
 		});
 		
-		//creating compound border for Text Field to specify left mergin to the text
+		//creating compound border for Text Field to specify left margin to the text
 		Border lineBorder = BorderFactory.createLineBorder(Color.blue, 1);
-		Border emptyBorder = new EmptyBorder(0,10,0,0); //left marign for text
+		Border emptyBorder = new EmptyBorder(0,10,0,0); //left margin for text
 		compoundBorder = new CompoundBorder(lineBorder,emptyBorder);
 		
-		jBtnSignIn = new JButton("Sign In");
+		Border lineBorder1 = BorderFactory.createLineBorder(new Color(108, 99, 255), 3);
+		Border emptyBorder1 = new EmptyBorder(0,10,0,0); //left margin for text
+		compoundBorderAfterClick = new CompoundBorder(lineBorder1,emptyBorder1);
+		
+		jBtnSignIn = new JButton("SIGN IN");
 		jTvUsername = new JTextField("Enter Username");
 		
 		jTvpassword = new JPasswordField();
@@ -76,6 +81,7 @@ public class SignInActivity {
 				if(jTvUsername.getText().length() == 0) {
 					jTvUsername.setForeground(Color.gray);
 					jTvUsername.setText("Enter Username");
+					jTvUsername.setBorder(compoundBorder);
 				}
 				
 			}
@@ -84,6 +90,7 @@ public class SignInActivity {
 			public void focusGained(FocusEvent e) {
 				jTvUsername.setText("");
 				jTvUsername.setForeground(Color.black);	
+				jTvUsername.setBorder(compoundBorderAfterClick);
 			}
 		});
 		
@@ -95,6 +102,7 @@ public class SignInActivity {
 					jTvpassword.setForeground(Color.gray);
 					jTvpassword.setEchoChar((char)0);
 					jTvpassword.setText("Enter Password");
+					jTvpassword.setBorder(compoundBorder);
 				}
 				
 			}
@@ -104,6 +112,7 @@ public class SignInActivity {
 				jTvpassword.setText("");
 				jTvpassword.setEchoChar('\u2022');
 				jTvpassword.setForeground(Color.gray);
+				jTvpassword.setBorder(compoundBorderAfterClick);
 			}
 		});
 		
@@ -149,7 +158,7 @@ public class SignInActivity {
 	}
 	
 	private void initializeAllWithProperties() {
-		//Username text field
+		//User name text field
 		jTvUsername.setPreferredSize(new Dimension(250,35));
 		jTvUsername.setBackground(Color.WHITE);
 		jTvUsername.setBorder(compoundBorder);
@@ -172,18 +181,22 @@ public class SignInActivity {
 		jFrame.setLayout(new GridBagLayout());
 		
 		GridBagConstraints c = new GridBagConstraints();
-		Insets buttonInsets = new Insets(20, 4, 4, 4);
-		Insets textFieldInsets = new Insets(4, 4, 4, 4);
-		Insets textTitle = new Insets(4, 4, 20, 4);
+		Insets buttonInsets = new Insets(4, 200, 20, 4);
+		Insets textFieldInsets = new Insets(4, 150, 10, 4);
+		Insets temp = new Insets(4, 185, 4, 4);
+		Insets textTitle = new Insets(4, 250, 20, 4);
+		Insets logoInsets = new InsetsUIResource(0, 200, 50, 0);
 		
-		Insets logoInsets = new InsetsUIResource(0, 0, 50, 0);
-		c.anchor = GridBagConstraints.CENTER;
+		c.anchor = GridBagConstraints.NORTHWEST;
+		c.weightx = 1.0;
+		c.weighty = 0;
+		c.gridwidth = 1;
+		c.gridheight = 1;
 		c.insets = logoInsets;
 		c.gridy = 1;
 		
 		//setting logo
 		jLabel = new JLabel(new ImageIcon(iconLogo));
-		jLabel.setBounds(0, 0, 100, 100);
 		jLabel.setPreferredSize(new Dimension(150,150));
 		jFrame.add(jLabel,c);
 		
@@ -193,13 +206,13 @@ public class SignInActivity {
 		c.insets = textTitle;		
 		jFrame.add(jLabelSignIntitle,c);
 		
-		//setting username text field
+		//setting user name text field
 		c.gridx = 0;
 		c.gridy = 3;
 		c.insets = textFieldInsets;
 		jFrame.add(jTvUsername,c);
 		
-		//setting password textfield
+		//setting password text field
 		c.gridy = 4;
 		jFrame.add(jTvpassword,c);
 		
@@ -211,7 +224,7 @@ public class SignInActivity {
 		
 		//setting sign up link
 		c.gridy = 6;
-		c.insets = textFieldInsets;
+		c.insets = temp;
 		jFrame.add(jLabelSignup,c);
 
 		jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -220,7 +233,7 @@ public class SignInActivity {
 		jFrame.setLocationRelativeTo(null);
 		jFrame.setVisible(true);
 		
-		//removing focus from edi stext and set it to the button
+		//removing focus from edit text and set it to the button
 		jFrame.getRootPane().setDefaultButton(jBtnSignIn);
 		jBtnSignIn.requestFocus();
 		
