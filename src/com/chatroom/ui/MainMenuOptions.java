@@ -26,7 +26,7 @@ public class MainMenuOptions {
 	private JButton jBtnJoinRoom;
 	private JButton jBtnViewRooms;
 	private JButton jBtnLogout;
-	private BufferedImage iconLogo;
+	private BufferedImage iconLogo;	
 
 	@SuppressWarnings("serial")
 	public MainMenuOptions() throws IOException {

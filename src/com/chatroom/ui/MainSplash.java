@@ -19,6 +19,8 @@ import javax.swing.*;
 import javax.swing.border.LineBorder;
 import javax.swing.plaf.InsetsUIResource;
 
+import com.chatroom.configuration.Config;
+
 public class MainSplash {
 	private JLabel jLabel;
 	private JFrame jFrame;
@@ -77,7 +79,7 @@ public class MainSplash {
 	
 	private void initializeAllWithProperties() {
 		jBtnSignUp.setPreferredSize(new Dimension(150,35));
-		jBtnSignUp.setBackground(new Color(108, 99, 255));
+		jBtnSignUp.setBackground(Config.colorPrimary);
 		jBtnSignUp.setBorder(new LineBorder(Color.white, 0));
 		jBtnSignUp.setForeground(Color.white);
 		jBtnSignUp.setFocusPainted(false);
@@ -85,8 +87,8 @@ public class MainSplash {
 		
 		jBtnSignIn.setPreferredSize(new Dimension(150,35));
 		jBtnSignIn.setBackground(Color.white);
-		jBtnSignIn.setBorder(new LineBorder(new Color(108, 99, 255), 3));
-		jBtnSignIn.setForeground(new Color(108, 99, 255));
+		jBtnSignIn.setBorder(new LineBorder(Config.colorPrimary, 3));
+		jBtnSignIn.setForeground(Config.colorPrimary);
 		jBtnSignIn.setFocusPainted(false);
 		
 		jFrame.setLayout(new GridBagLayout());
