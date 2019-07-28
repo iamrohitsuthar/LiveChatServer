@@ -42,7 +42,7 @@ public class SignInActivity {
 		
 		//setting main background
 		jFrame.setContentPane(new JPanel() {
-			BufferedImage myImage = ImageIO.read(this.getClass().getResource("/background.jpg"));
+			BufferedImage myImage = ImageIO.read(this.getClass().getResource("/background.png"));
 			public void paintComponent(Graphics g) {
 				super.paintComponent(g);
 				g.drawImage(myImage, 0, 0, this);
@@ -215,11 +215,12 @@ public class SignInActivity {
 		jFrame.add(jLabelSignup,c);
 
 		jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		jFrame.setSize(800,550);
-		
+		jFrame.setSize(864,614);
+		jFrame.setResizable(false);
+		jFrame.setLocationRelativeTo(null);
 		jFrame.setVisible(true);
 		
-		//removing focus from editext and set it to the button
+		//removing focus from edi stext and set it to the button
 		jFrame.getRootPane().setDefaultButton(jBtnSignIn);
 		jBtnSignIn.requestFocus();
 		
