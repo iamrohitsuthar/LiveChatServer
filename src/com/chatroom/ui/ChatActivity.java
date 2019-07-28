@@ -28,7 +28,6 @@ import javax.swing.border.LineBorder;
 import javax.swing.plaf.InsetsUIResource;
 
 public class ChatActivity {
-	private JLabel jLabel;
 	private JFrame jFrame;
 	private JButton jBtnSend;
 	private JTextField jTfMessageHere;
