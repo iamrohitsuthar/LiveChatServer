@@ -38,6 +38,7 @@ public class ChatActivity {
 	private JPanel jPanelChatWindow;
 	private int i = 0;
 	
+	@SuppressWarnings("serial")
 	public ChatActivity() throws IOException {
 		jFrame = new JFrame("CHATROOM Chats");
 		jPanel = new JPanel();
@@ -46,16 +47,16 @@ public class ChatActivity {
 		
 		//setting main background
 		jFrame.setContentPane(new JPanel() {
-			BufferedImage myImage = ImageIO.read(this.getClass().getResource("/background.jpg"));
+			BufferedImage myImage = ImageIO.read(this.getClass().getResource("/background.png"));
 			public void paintComponent(Graphics g) {
 				super.paintComponent(g);
 				g.drawImage(myImage, 0, 0, this);
 			}
 		});
 		
-		//creating compound border for Text Field to specify left mergin to the text
+		//creating compound border for Text Field to specify left margin to the text
 		Border lineBorder = BorderFactory.createLineBorder(Color.blue, 1);
-		Border emptyBorder = new EmptyBorder(0,10,0,0); //left marign for text
+		Border emptyBorder = new EmptyBorder(0,10,0,0); //left margin for text
 		compoundBorder = new CompoundBorder(lineBorder,emptyBorder);
 		
 		Border lineBorder1 = BorderFactory.createLineBorder(Color.WHITE, 3);
