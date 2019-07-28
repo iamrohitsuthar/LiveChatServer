@@ -2,6 +2,7 @@ package com.chatroom.ui;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -28,19 +29,19 @@ public class MainSplash {
 	public MainSplash() throws IOException {
 		jFrame = new JFrame("CHATROOM");
 		
-		iconLogo = ImageIO.read(this.getClass().getResource("/logo1.png"));
+		iconLogo = ImageIO.read(this.getClass().getResource("/logo.png"));
 
 		
 		jFrame.setContentPane(new JPanel() {
-			BufferedImage myImage = ImageIO.read(this.getClass().getResource("/bg1.png"));
+			BufferedImage myImage = ImageIO.read(this.getClass().getResource("/background.png"));
 			public void paintComponent(Graphics g) {
 				super.paintComponent(g);
 				g.drawImage(myImage, 0, 0,this);
 			}
 		});
 		
-		jBtnSignUp = new JButton("Sign Up");
-		jBtnSignIn = new JButton("Sign In ");
+		jBtnSignUp = new JButton("SIGN UP");
+		jBtnSignIn = new JButton("SIGN IN");
 		
 		initializeAllWithProperties();
 
@@ -76,20 +77,28 @@ public class MainSplash {
 	
 	private void initializeAllWithProperties() {
 		jBtnSignUp.setPreferredSize(new Dimension(150,35));
-		jBtnSignUp.setBackground(Color.WHITE);
-		jBtnSignUp.setBorder(new LineBorder(Color.blue, 3));
+		jBtnSignUp.setBackground(new Color(108, 99, 255));
+		//jBtnSignUp.setBorder(new LineBorder(Color.blue, 3));
+		jBtnSignUp.setForeground(Color.white);
 		jBtnSignUp.setFocusPainted(false);
 		
 		
 		jBtnSignIn.setPreferredSize(new Dimension(150,35));
-		jBtnSignIn.setBorder(new LineBorder(Color.blue, 3));
+		jBtnSignIn.setBackground(Color.white);
+		jBtnSignIn.setBorder(new LineBorder(new Color(108, 99, 255), 3));
+		jBtnSignIn.setForeground(new Color(108, 99, 255));
 		jBtnSignIn.setFocusPainted(false);
 		
 		jFrame.setLayout(new GridBagLayout());
-		GridBagConstraints c = new GridBagConstraints();
-		Insets buttonInsets = new Insets(4, 4, 4, 4);
-		Insets logoInsets = new InsetsUIResource(0, 0, 100, 0);
-		c.anchor = GridBagConstraints.CENTER;
+		GridBagConstraints c = new GridBagConstraints();	
+		Insets buttonInsets = new Insets(4, 200, 20, 4);
+		Insets logoInsets = new InsetsUIResource(0, 200, 50, 0);
+		
+		c.anchor = GridBagConstraints.NORTHWEST;
+		c.weightx = 1.0;
+		c.weighty = 0;
+		c.gridwidth = 1;
+		c.gridheight = 1;
 		c.insets = logoInsets;
 		c.gridy = 1;
 		
