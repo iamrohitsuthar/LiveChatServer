@@ -29,19 +29,18 @@ public class SignUpActivity {
 	private JButton jBtnSignUp;
 	private JTextField jTvUsername;
 	private JPasswordField jTvpassword;
-	private Image iconLogo;
-	private CompoundBorder compoundBorder ;
+	private CompoundBorder compoundBorder;
+	private BufferedImage iconLogo;
 	
 	public SignUpActivity() throws IOException {
 		jFrame = new JFrame("CHATROOM Sign Up");
 		
 		//scaling logo
-		BufferedImage myImage1 = ImageIO.read(this.getClass().getResource("/logo.png"));
-		iconLogo = myImage1.getScaledInstance(150, 150, BufferedImage.SCALE_DEFAULT);
+		iconLogo = ImageIO.read(this.getClass().getResource("/logo.png"));
 		
 		//setting main background
 		jFrame.setContentPane(new JPanel() {
-			BufferedImage myImage = ImageIO.read(this.getClass().getResource("/background.jpg"));
+			BufferedImage myImage = ImageIO.read(this.getClass().getResource("/background.png"));
 			public void paintComponent(Graphics g) {
 				super.paintComponent(g);
 				g.drawImage(myImage, 0, 0, this);
