@@ -28,13 +28,14 @@ public class MainMenuOptions {
 	private JButton jBtnLogout;
 	private BufferedImage iconLogo;
 
+	@SuppressWarnings("serial")
 	public MainMenuOptions() throws IOException {
 		jFrame = new JFrame("CHATROOM");
 		
 		iconLogo = ImageIO.read(this.getClass().getResource("/logo.png"));
 		
 		jFrame.setContentPane(new JPanel() {
-			BufferedImage myImage = ImageIO.read(this.getClass().getResource("/background.jpg"));
+			BufferedImage myImage = ImageIO.read(this.getClass().getResource("/background.png"));
 			public void paintComponent(Graphics g) {
 				super.paintComponent(g);
 				g.drawImage(myImage, 0, 0, this);
@@ -164,9 +165,10 @@ public class MainMenuOptions {
 		c.gridx = 0;
 		c.gridy = 6;
 		jFrame.add(jBtnLogout,c);
-		
 		jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		jFrame.setSize(800,550);
+		jFrame.setSize(864,614);
+		jFrame.setResizable(false);
+		jFrame.setLocationRelativeTo(null);
 		jFrame.setVisible(true);
 		
 		ListeningEvents();
