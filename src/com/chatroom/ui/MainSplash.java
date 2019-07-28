@@ -23,19 +23,19 @@ public class MainSplash {
 	private JFrame jFrame;
 	private JButton jBtnSignUp;
 	private JButton jBtnSignIn;
-	private Image iconLogo;
+	private BufferedImage iconLogo;
 
 	public MainSplash() throws IOException {
 		jFrame = new JFrame("CHATROOM");
 		
-		BufferedImage myImage1 = ImageIO.read(this.getClass().getResource("/logo.png"));
-		iconLogo = myImage1.getScaledInstance(150, 150, BufferedImage.SCALE_DEFAULT);
+		iconLogo = ImageIO.read(this.getClass().getResource("/logo1.png"));
+
 		
 		jFrame.setContentPane(new JPanel() {
-			BufferedImage myImage = ImageIO.read(this.getClass().getResource("/background.jpg"));
+			BufferedImage myImage = ImageIO.read(this.getClass().getResource("/bg1.png"));
 			public void paintComponent(Graphics g) {
 				super.paintComponent(g);
-				g.drawImage(myImage, 0, 0, this);
+				g.drawImage(myImage, 0, 0,this);
 			}
 		});
 		
@@ -94,7 +94,6 @@ public class MainSplash {
 		c.gridy = 1;
 		
 		jLabel = new JLabel(new ImageIcon(iconLogo));
-		jLabel.setBounds(0, 0, 100, 100);
 		jLabel.setPreferredSize(new Dimension(150,150));
 		jFrame.add(jLabel,c);
 		
@@ -108,8 +107,10 @@ public class MainSplash {
 		jFrame.add(jBtnSignIn,c);
 		
 		jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		jFrame.setSize(800,550);
+		jFrame.setSize(864,614);
+		jFrame.setLocationRelativeTo(null);
 		jFrame.setVisible(true);
+		jFrame.setResizable(false);
 		
 		ListeningEvents();
 	}
