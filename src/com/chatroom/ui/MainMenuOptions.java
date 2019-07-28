@@ -26,13 +26,12 @@ public class MainMenuOptions {
 	private JButton jBtnJoinRoom;
 	private JButton jBtnViewRooms;
 	private JButton jBtnLogout;
-	private Image iconLogo;
+	private BufferedImage iconLogo;
 
 	public MainMenuOptions() throws IOException {
 		jFrame = new JFrame("CHATROOM");
 		
-		BufferedImage myImage1 = ImageIO.read(this.getClass().getResource("/logo.png"));
-		iconLogo = myImage1.getScaledInstance(150, 150, BufferedImage.SCALE_DEFAULT);
+		iconLogo = ImageIO.read(this.getClass().getResource("/logo.png"));
 		
 		jFrame.setContentPane(new JPanel() {
 			BufferedImage myImage = ImageIO.read(this.getClass().getResource("/background.jpg"));
