@@ -17,6 +17,8 @@ import javax.swing.*;
 import javax.swing.border.LineBorder;
 import javax.swing.plaf.InsetsUIResource;
 
+import com.chatroom.configuration.Config;
+
 public class ViewRoomsActivity {
 	private JLabel jLabel;
 	private JFrame jFrame;
@@ -61,7 +63,7 @@ public class ViewRoomsActivity {
 		//join room button properties
 		jBtnJoinRoom.setPreferredSize(new Dimension(150,35));
 		jBtnJoinRoom.setBackground(Color.WHITE);
-		jBtnJoinRoom.setBorder(new LineBorder(Color.blue, 3));
+		jBtnJoinRoom.setBorder(new LineBorder(Config.colorPrimary, 3));
 		jBtnJoinRoom.setFocusPainted(false);
 		
 		//combo box properties
@@ -71,17 +73,23 @@ public class ViewRoomsActivity {
 		    @Override
 		    public void paint(Graphics g) {
 		        setBackground(Color.WHITE);
-		        setForeground(Color.BLUE);
+		        setForeground(Config.colorPrimary);
 		        super.paint(g);
 		    }
 		});
 		
 		jFrame.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
-		Insets buttonInsets = new Insets(20, 4, 4, 4);
-		Insets comboBoxInsets = new Insets(4, 4, 4, 4);
-		Insets logoInsets = new InsetsUIResource(0, 0, 40, 0);
-		c.anchor = GridBagConstraints.CENTER;
+		Insets comboBoxInsets = new Insets(4, 175, 20, 4);
+		Insets textTitle = new Insets(4, 100, 20, 4);
+		Insets logoInsets = new InsetsUIResource(0, 200, 50, 0);
+		Insets buttonInsets = new Insets(4, 200, 20, 4);
+		
+		c.anchor = GridBagConstraints.NORTHWEST;
+		c.weightx = 1.0;
+		c.weighty = 0;
+		c.gridwidth = 1;
+		c.gridheight = 1;
 		c.insets = logoInsets;
 		c.gridy = 1;
 		
@@ -101,7 +109,9 @@ public class ViewRoomsActivity {
 		jFrame.add(jBtnJoinRoom,c);
 		
 		jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		jFrame.setSize(800,550);
+		jFrame.setSize(864,614);
+		jFrame.setResizable(false);
+		jFrame.setLocationRelativeTo(null);
 		jFrame.setVisible(true);
 		jFrame.getRootPane().setDefaultButton(jBtnJoinRoom);
 		jBtnJoinRoom.requestFocus();
