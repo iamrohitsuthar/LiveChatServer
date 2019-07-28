@@ -44,10 +44,10 @@ public class MainMenuOptions {
 			}
 		});
 		
-		jBtnCreateRoom = new JButton("Create Room");
-		jBtnJoinRoom = new JButton("Join Room");
-		jBtnViewRooms = new JButton("View Rooms");
-		jBtnLogout = new JButton("Logout");
+		jBtnCreateRoom = new JButton("CREATE ROOM");
+		jBtnJoinRoom = new JButton("JOIN ROOM");
+		jBtnViewRooms = new JButton("VIEW ROOMS");
+		jBtnLogout = new JButton("LOGOUT");
 		
 		jLabelTitle = new JLabel("WELCOME TO CHATROOM - A LIVE CHAT SOFTWARE");
 		
