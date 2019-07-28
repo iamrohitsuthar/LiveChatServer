@@ -68,12 +68,27 @@ public class MainMenuOptions {
 				displayAlertDialog(2);
 			}
 		});
-		
+		jBtnViewRooms.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				jFrame.dispose();
+				try {
+					new ViewRoomsActivity();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				
+			}
+		});
 		jBtnLogout.addActionListener(new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
+					jFrame.dispose();
 					new SignInActivity();
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
@@ -152,7 +167,7 @@ public class MainMenuOptions {
 		jFrame.add(jBtnLogout,c);
 		
 		jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		jFrame.setSize(500,500);
+		jFrame.setSize(800,550);
 		jFrame.setVisible(true);
 		
 		ListeningEvents();

@@ -12,6 +12,7 @@ import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
@@ -50,9 +51,9 @@ public class MainSplash {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
+					jFrame.dispose();
 					new SignUpActivity();
 				} catch (IOException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 				
@@ -63,6 +64,7 @@ public class MainSplash {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
+					jFrame.dispose();
 					new SignInActivity();
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
@@ -106,7 +108,7 @@ public class MainSplash {
 		jFrame.add(jBtnSignIn,c);
 		
 		jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		jFrame.setSize(500,500);
+		jFrame.setSize(800,550);
 		jFrame.setVisible(true);
 		
 		ListeningEvents();

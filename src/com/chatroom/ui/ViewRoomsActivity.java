@@ -1,3 +1,4 @@
+
 package com.chatroom.ui;
 
 import java.awt.Color;
@@ -100,7 +101,7 @@ public class ViewRoomsActivity {
 		jFrame.add(jBtnJoinRoom,c);
 		
 		jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		jFrame.setSize(500,500);
+		jFrame.setSize(800,550);
 		jFrame.setVisible(true);
 		jFrame.getRootPane().setDefaultButton(jBtnJoinRoom);
 		jBtnJoinRoom.requestFocus();
@@ -112,4 +113,3 @@ public class ViewRoomsActivity {
 		new ViewRoomsActivity();
 	}	
 }
-

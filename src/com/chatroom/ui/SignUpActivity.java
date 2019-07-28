@@ -135,6 +135,7 @@ public class SignUpActivity {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				try {
+					jFrame.dispose();
 					new SignInActivity();
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
@@ -189,7 +190,7 @@ public class SignUpActivity {
 		c.insets = textTitle;
 		jFrame.add(jLabelsignUptitle,c);
 		
-		//setting user name text field
+		//setting username text field
 		c.gridx = 0;
 		c.gridy = 3;
 		c.insets = textFieldInsets;
@@ -212,7 +213,7 @@ public class SignUpActivity {
 		
 
 		jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		jFrame.setSize(500,500);
+		jFrame.setSize(800,550);
 		
 		jFrame.setVisible(true);
 		

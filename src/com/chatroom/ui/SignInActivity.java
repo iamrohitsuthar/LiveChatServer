@@ -136,6 +136,7 @@ public class SignInActivity {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				try {
+					jFrame.dispose();
 					new SignUpActivity();
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
@@ -214,11 +215,11 @@ public class SignInActivity {
 		jFrame.add(jLabelSignup,c);
 
 		jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		jFrame.setSize(500,500);
+		jFrame.setSize(800,550);
 		
 		jFrame.setVisible(true);
 		
-		//removing focus from text field and set it to the button
+		//removing focus from editext and set it to the button
 		jFrame.getRootPane().setDefaultButton(jBtnSignIn);
 		jBtnSignIn.requestFocus();
 		
