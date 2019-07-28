@@ -21,6 +21,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.plaf.InsetsUIResource;
 
+import com.chatroom.configuration.Config;
+
 public class SignUpActivity {
 	private JLabel jLabel;
 	private JLabel jLabelsignin;
@@ -54,7 +56,7 @@ public class SignUpActivity {
 		Border emptyBorder = new EmptyBorder(0,10,0,0); //left margin for text
 		compoundBorder = new CompoundBorder(lineBorder,emptyBorder);
 		
-		Border lineBorder1 = BorderFactory.createLineBorder(new Color(108, 99, 255), 3);
+		Border lineBorder1 = BorderFactory.createLineBorder(Config.colorPrimary, 3);
 		Border emptyBorder1 = new EmptyBorder(0,10,0,0); //left margin for text
 		compoundBorderAfterClick = new CompoundBorder(lineBorder1,emptyBorder1);
 		

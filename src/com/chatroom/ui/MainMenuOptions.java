@@ -18,6 +18,8 @@ import javax.swing.border.LineBorder;
 import javax.swing.plaf.InsetsUIResource;
 import javax.swing.plaf.OptionPaneUI;
 
+import com.chatroom.configuration.Config;
+
 public class MainMenuOptions {
 	private JLabel jLabel;
 	private JLabel jLabelTitle;
@@ -103,25 +105,25 @@ public class MainMenuOptions {
 		//create room button
 		jBtnCreateRoom.setPreferredSize(new Dimension(150,35));
 		jBtnCreateRoom.setBackground(Color.WHITE);
-		jBtnCreateRoom.setBorder(new LineBorder(new Color(108, 99, 255), 3));
+		jBtnCreateRoom.setBorder(new LineBorder(Config.colorPrimary, 3));
 		jBtnCreateRoom.setFocusPainted(false);
 		
 		//join room button
 		jBtnJoinRoom.setPreferredSize(new Dimension(150,35));
 		jBtnJoinRoom.setBackground(Color.WHITE);
-		jBtnJoinRoom.setBorder(new LineBorder(new Color(108, 99, 255), 3));
+		jBtnJoinRoom.setBorder(new LineBorder(Config.colorPrimary, 3));
 		jBtnJoinRoom.setFocusPainted(false);
 		
 		//view all rooms button
 		jBtnViewRooms.setPreferredSize(new Dimension(150,35));
 		jBtnViewRooms.setBackground(Color.WHITE);
-		jBtnViewRooms.setBorder(new LineBorder(new Color(108, 99, 255), 3));
+		jBtnViewRooms.setBorder(new LineBorder(Config.colorPrimary, 3));
 		jBtnViewRooms.setFocusPainted(false);
 		
 		//logout button
 		jBtnLogout.setPreferredSize(new Dimension(150,35));
 		jBtnLogout.setBackground(Color.WHITE);
-		jBtnLogout.setBorder(new LineBorder(new Color(108, 99, 255), 3));
+		jBtnLogout.setBorder(new LineBorder(Config.colorPrimary, 3));
 		jBtnLogout.setFocusPainted(false);
 		
 		jFrame.setLayout(new GridBagLayout());
