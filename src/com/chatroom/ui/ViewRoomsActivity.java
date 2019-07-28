@@ -21,6 +21,7 @@ import com.chatroom.configuration.Config;
 
 public class ViewRoomsActivity {
 	private JLabel jLabel;
+	private JLabel jLabelTitle;
 	private JFrame jFrame;
 	private JButton jBtnJoinRoom;
 	private JComboBox<String> jComboBox;
@@ -41,7 +42,8 @@ public class ViewRoomsActivity {
 		});
 		
 		String rooms[] = {"N3","My Room","First Room","Test","Free Room","Default Room"};
-		jBtnJoinRoom = new JButton("Join Room");
+		jBtnJoinRoom = new JButton("JOIN ROOM");
+		jLabelTitle = new JLabel("Select room that you want to join");
 		jComboBox = new JComboBox<>(rooms);
 		
 		initializeAllWithProperties();
@@ -81,7 +83,7 @@ public class ViewRoomsActivity {
 		jFrame.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
 		Insets comboBoxInsets = new Insets(4, 175, 20, 4);
-		Insets textTitle = new Insets(4, 100, 20, 4);
+		Insets textTitle = new Insets(4, 160, 20, 4);
 		Insets logoInsets = new InsetsUIResource(0, 200, 50, 0);
 		Insets buttonInsets = new Insets(4, 200, 20, 4);
 		
@@ -98,13 +100,17 @@ public class ViewRoomsActivity {
 		jLabel.setPreferredSize(new Dimension(150,150));
 		jFrame.add(jLabel,c);
 		
-		c.gridx = 0;
 		c.gridy = 2;
+		c.insets = textTitle;
+		jFrame.add(jLabelTitle,c);
+		
+		c.gridx = 0;
+		c.gridy = 3;
 		c.insets = comboBoxInsets;
 		jFrame.add(jComboBox,c);
 		
 		c.gridx = 0;
-		c.gridy = 3;
+		c.gridy = 4;
 		c.insets = buttonInsets;
 		jFrame.add(jBtnJoinRoom,c);
 		
