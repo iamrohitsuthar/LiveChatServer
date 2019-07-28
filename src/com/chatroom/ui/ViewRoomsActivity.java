@@ -22,16 +22,16 @@ public class ViewRoomsActivity {
 	private JFrame jFrame;
 	private JButton jBtnJoinRoom;
 	private JComboBox<String> jComboBox;
-	private Image iconLogo;
+	private BufferedImage iconLogo;
 
+	@SuppressWarnings("serial")
 	public ViewRoomsActivity() throws IOException {
 		jFrame = new JFrame("CHATROOM VIEW ROOMS");
 		
-		BufferedImage myImage1 = ImageIO.read(this.getClass().getResource("/logo.png"));
-		iconLogo = myImage1.getScaledInstance(150, 150, BufferedImage.SCALE_DEFAULT);
+		iconLogo = ImageIO.read(this.getClass().getResource("/logo.png"));
 		
 		jFrame.setContentPane(new JPanel() {
-			BufferedImage myImage = ImageIO.read(this.getClass().getResource("/background.jpg"));
+			BufferedImage myImage = ImageIO.read(this.getClass().getResource("/background.png"));
 			public void paintComponent(Graphics g) {
 				super.paintComponent(g);
 				g.drawImage(myImage, 0, 0, this);
