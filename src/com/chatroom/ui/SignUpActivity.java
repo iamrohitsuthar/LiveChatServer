@@ -30,6 +30,7 @@ public class SignUpActivity {
 	private JTextField jTvUsername;
 	private JPasswordField jTvpassword;
 	private CompoundBorder compoundBorder;
+	private CompoundBorder compoundBorderAfterClick;
 	private BufferedImage iconLogo;
 	
 	public SignUpActivity() throws IOException {
@@ -51,6 +52,10 @@ public class SignUpActivity {
 		Border lineBorder = BorderFactory.createLineBorder(Color.blue, 1);
 		Border emptyBorder = new EmptyBorder(0,10,0,0); //left marign for text
 		compoundBorder = new CompoundBorder(lineBorder,emptyBorder);
+		
+		Border lineBorder1 = BorderFactory.createLineBorder(Color.blue, 1);
+		Border emptyBorder1 = new EmptyBorder(0,10,0,0); //left marign for text
+		compoundBorderAfterClick = new CompoundBorder(lineBorder1,emptyBorder1);
 		
 		jBtnSignUp = new JButton("Sign Up");
 		jTvUsername = new JTextField("Enter Username");
@@ -74,6 +79,7 @@ public class SignUpActivity {
 				if(jTvUsername.getText().length() == 0) {
 					jTvUsername.setForeground(Color.gray);
 					jTvUsername.setText("Enter Username");
+					jTvUsername.setBorder(compoundBorder);
 				}
 				
 			}
@@ -82,6 +88,7 @@ public class SignUpActivity {
 			public void focusGained(FocusEvent e) {
 				jTvUsername.setText("");
 				jTvUsername.setForeground(Color.black);	
+				jTvUsername.setBorder(compoundBorderAfterClick);
 			}
 		});
 		
@@ -93,6 +100,7 @@ public class SignUpActivity {
 					jTvpassword.setForeground(Color.gray);
 					jTvpassword.setEchoChar((char)0);
 					jTvpassword.setText("Enter Password");
+					jTvpassword.setBorder(compoundBorder);
 				}
 				
 			}
@@ -102,6 +110,7 @@ public class SignUpActivity {
 				jTvpassword.setText("");
 				jTvpassword.setEchoChar('\u2022');
 				jTvpassword.setForeground(Color.gray);
+				jTvpassword.setBorder(compoundBorderAfterClick);
 			}
 		});
 		
@@ -145,7 +154,7 @@ public class SignUpActivity {
 	}
 	
 	private void initializeAllWithProperties() {
-		//Username text field
+		//User name text field
 		jTvUsername.setPreferredSize(new Dimension(250,35));
 		jTvUsername.setBackground(Color.WHITE);
 		jTvUsername.setBorder(compoundBorder);
@@ -168,12 +177,17 @@ public class SignUpActivity {
 		jFrame.setLayout(new GridBagLayout());
 		
 		GridBagConstraints c = new GridBagConstraints();
-		Insets buttonInsets = new Insets(20, 4, 4, 4);
-		Insets textFieldInsets = new Insets(4, 4, 4, 4);
-		Insets textTitle = new Insets(4, 4, 20, 4);
-		
-		Insets logoInsets = new InsetsUIResource(0, 0, 50, 0);
-		c.anchor = GridBagConstraints.CENTER;
+		Insets buttonInsets = new Insets(4, 200, 20, 4);
+		Insets textFieldInsets = new Insets(4, 150, 10, 4);
+		Insets temp = new Insets(4, 185, 4, 4);
+		Insets textTitle = new Insets(4, 250, 20, 4);
+		Insets logoInsets = new InsetsUIResource(0, 200, 50, 0);
+
+		c.anchor = GridBagConstraints.NORTHWEST;
+		c.weightx = 1.0;
+		c.weighty = 0;
+		c.gridwidth = 1;
+		c.gridheight = 1;
 		c.insets = logoInsets;
 		c.gridy = 1;
 		
@@ -189,13 +203,13 @@ public class SignUpActivity {
 		c.insets = textTitle;
 		jFrame.add(jLabelsignUptitle,c);
 		
-		//setting username text field
+		//setting user name text field
 		c.gridx = 0;
 		c.gridy = 3;
 		c.insets = textFieldInsets;
 		jFrame.add(jTvUsername,c);
 		
-		//setting password textfield
+		//setting password text field
 		c.gridy = 4;
 		jFrame.add(jTvpassword,c);
 		
@@ -207,7 +221,7 @@ public class SignUpActivity {
 		
 		//setting sign in link
 		c.gridy = 6;
-		c.insets = textFieldInsets;
+		c.insets = temp;
 		jFrame.add(jLabelsignin,c);
 		
 
