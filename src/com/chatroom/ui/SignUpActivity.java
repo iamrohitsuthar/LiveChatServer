@@ -226,11 +226,12 @@ public class SignUpActivity {
 		
 
 		jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		jFrame.setSize(800,550);
-		
+		jFrame.setSize(864,614);
+		jFrame.setResizable(false);
+		jFrame.setLocationRelativeTo(null);
 		jFrame.setVisible(true);
 		
-		//removing focus from editext and set it to the button
+		//removing focus from edit text and set it to the button
 		jFrame.getRootPane().setDefaultButton(jBtnSignUp);
 		jBtnSignUp.requestFocus();
 		
