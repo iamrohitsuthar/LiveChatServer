@@ -28,6 +28,7 @@ public class MainSplash {
 	private JButton jBtnSignIn;
 	private BufferedImage iconLogo;
 
+	@SuppressWarnings("serial")
 	public MainSplash() throws IOException {
 		jFrame = new JFrame("CHATROOM");
 		
