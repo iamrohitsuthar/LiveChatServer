@@ -190,6 +190,7 @@ public class SignUpActivity {
 			if( response.getId() == Response.Type.SIGN_UP.ordinal())
 			{
 				if(response.getSuccess()) {
+					Message.println("Sign up Successfull ... ");
 					clientModel.setClientID(Integer.parseInt(response.getContents()));
 					new MainMenuOptions(clientModel);
 					jFrame.dispose();

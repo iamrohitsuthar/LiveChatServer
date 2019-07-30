@@ -18,6 +18,7 @@ import javax.swing.border.LineBorder;
 import javax.swing.plaf.InsetsUIResource;
 import javax.swing.plaf.OptionPaneUI;
 
+import com.chatroom.client.ClientModel;
 import com.chatroom.configuration.Config;
 
 public class MainMenuOptions {
@@ -28,10 +29,12 @@ public class MainMenuOptions {
 	private JButton jBtnJoinRoom;
 	private JButton jBtnViewRooms;
 	private JButton jBtnLogout;
-	private BufferedImage iconLogo;	
+	private BufferedImage iconLogo;
+	private ClientModel clientModel;
 
 	@SuppressWarnings("serial")
-	public MainMenuOptions() throws IOException {
+	public MainMenuOptions(ClientModel cm) throws IOException {
+		clientModel = cm;
 		jFrame = new JFrame("CHATROOM");
 		
 		iconLogo = ImageIO.read(this.getClass().getResource("/logo.png"));
@@ -89,13 +92,14 @@ public class MainMenuOptions {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				try {
-					jFrame.dispose();
-					new SignInActivity();
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
+//				try {
+//					jFrame.dispose();
+//					// @ToDO: ClientModel
+//					//new SignInActivity();
+//				} catch (IOException e1) {
+//					// TODO Auto-generated catch block
+//					e1.printStackTrace();
+//				}
 				
 			}
 		});
@@ -201,8 +205,8 @@ public class MainMenuOptions {
 		JOptionPane.showMessageDialog(null, jPanel, "Enter Room name",JOptionPane.PLAIN_MESSAGE);
 	}
 	
-	public static void main(String args[]) throws IOException {
-		new MainMenuOptions();
-	}	
+//	public static void main(String args[]) throws IOException {
+//		new MainMenuOptions();
+//	}	
 }
 
