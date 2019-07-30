@@ -7,6 +7,8 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Image;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.MouseEvent;
@@ -21,7 +23,12 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.plaf.InsetsUIResource;
 
+import com.chatroom.client.ClientModel;
 import com.chatroom.configuration.Config;
+import com.chatroom.models.Request;
+import com.chatroom.models.Response;
+import com.chatroom.others.Hash;
+import com.chatroom.others.Message;
 
 public class SignUpActivity {
 	private JLabel jLabel;
@@ -34,9 +41,11 @@ public class SignUpActivity {
 	private CompoundBorder compoundBorder;
 	private CompoundBorder compoundBorderAfterClick;
 	private BufferedImage iconLogo;
+	private ClientModel clientModel;
 	
 	@SuppressWarnings("serial")
-	public SignUpActivity() throws IOException {
+	public SignUpActivity(ClientModel cm) throws IOException {
+		clientModel = cm;
 		jFrame = new JFrame("CHATROOM Sign Up");
 		
 		//scaling logo
@@ -89,7 +98,8 @@ public class SignUpActivity {
 			
 			@Override
 			public void focusGained(FocusEvent e) {
-				jTvUsername.setText("");
+				if(jTvUsername.getText().equals("Enter Username"))
+					jTvUsername.setText("");
 				jTvUsername.setForeground(Color.black);	
 				jTvUsername.setBorder(compoundBorderAfterClick);
 			}
@@ -110,12 +120,24 @@ public class SignUpActivity {
 			
 			@Override
 			public void focusGained(FocusEvent e) {
-				jTvpassword.setText("");
+				if(jTvpassword.getText().equals("Enter Password"))
+					jTvpassword.setText("");
 				jTvpassword.setEchoChar('\u2022');
 				jTvpassword.setForeground(Color.gray);
 				jTvpassword.setBorder(compoundBorderAfterClick);
 			}
 		});
+		
+		jBtnSignUp.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String username = jTvUsername.getText();
+				String password = jTvpassword.getText();		
+				signUp(username,password);
+			}
+		});		
+		
 		
 		jLabelsignin.addMouseListener(new MouseListener() {
 			
@@ -147,13 +169,41 @@ public class SignUpActivity {
 			public void mouseClicked(MouseEvent e) {
 				try {
 					jFrame.dispose();
-					new SignInActivity();
+					new SignInActivity(clientModel);
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 			}
 		});
+	}
+	private void signUp(String username, String password) {
+		String cont = username;
+		cont += "#";
+		cont += Hash.getHash(new String(password));
+		Request request = new Request(Request.Type.SIGN_UP.ordinal(),clientModel.getClientID(),clientModel.getRoomId(),cont);
+		try {
+			ClientModel.objectOutputStream.writeObject(request);
+			ClientModel.objectOutputStream.flush();
+			Response response = (Response) ClientModel.objectInputStream.readObject();
+			
+			if( response.getId() == Response.Type.SIGN_UP.ordinal())
+			{
+				if(response.getSuccess()) {
+					clientModel.setClientID(Integer.parseInt(response.getContents()));
+					new MainMenuOptions(clientModel);
+					jFrame.dispose();
+				}
+				else {
+					JOptionPane.showMessageDialog(null, response.getContents(), null, JOptionPane.ERROR_MESSAGE);
+					Message.println(response.getContents());
+				}
+			}
+			
+		} catch (IOException | ClassNotFoundException e) {
+			// TODO Add log
+			e.printStackTrace();
+		}
 	}
 	
 	private void initializeAllWithProperties() {
@@ -241,8 +291,8 @@ public class SignUpActivity {
 		ListeningEvents();
 	}
 	
-	public static void main(String args[]) throws IOException {
-		new SignUpActivity();
-	}	
+//	public static void main(String args[]) throws IOException {
+//		new SignUpActivity();
+//	}	
 }
 

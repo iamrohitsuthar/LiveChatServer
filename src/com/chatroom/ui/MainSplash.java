@@ -19,6 +19,7 @@ import javax.swing.*;
 import javax.swing.border.LineBorder;
 import javax.swing.plaf.InsetsUIResource;
 
+import com.chatroom.client.ClientModel;
 import com.chatroom.configuration.Config;
 
 public class MainSplash {
@@ -27,9 +28,11 @@ public class MainSplash {
 	private JButton jBtnSignUp;
 	private JButton jBtnSignIn;
 	private BufferedImage iconLogo;
+	private ClientModel clientModel;
 
 	@SuppressWarnings("serial")
-	public MainSplash() throws IOException {
+	public MainSplash(ClientModel cm) throws IOException {
+		clientModel = cm;
 		jFrame = new JFrame("CHATROOM");
 		
 		iconLogo = ImageIO.read(this.getClass().getResource("/logo.png"));
@@ -47,7 +50,6 @@ public class MainSplash {
 		jBtnSignIn = new JButton("SIGN IN");
 		
 		initializeAllWithProperties();
-
 	}
 	
 	private void ListeningEvents() {
@@ -56,7 +58,7 @@ public class MainSplash {
 			public void actionPerformed(ActionEvent e) {
 				try {
 					jFrame.dispose();
-					new SignUpActivity();
+					new SignUpActivity(clientModel);
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}
@@ -69,7 +71,7 @@ public class MainSplash {
 			public void actionPerformed(ActionEvent e) {
 				try {
 					jFrame.dispose();
-					new SignInActivity();
+					new SignInActivity(clientModel);
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -128,7 +130,14 @@ public class MainSplash {
 	}
 	
 	public static void main(String args[]) throws IOException {
-		new MainSplash();
+		String h = "localhost";
+		int p = 8793;
+		ClientModel cm;
+		if( args.length == 0 )
+			cm = new ClientModel(h, p);
+		else
+			cm = new ClientModel(args[0], Integer.parseInt(args[1]));
+		new MainSplash(cm);
 	}	
 }
 
