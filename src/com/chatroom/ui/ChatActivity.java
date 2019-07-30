@@ -115,9 +115,9 @@ public class ChatActivity {
 	}
 	
 	private void setSenderMessage() {
-		if(!jTfMessageHere.getText().equals("Type your message here")) {
+		if(!jTfMessageHere.getText().equals("Type your message here") && jTfMessageHere.getText().trim()	.length() > 0) {
 			jLabelMessage = new JLabel();
-			String text = String.format("<html><div style=\"width:%1$dpx;font-size:8px;text-align:right;\">%3$s</div><div style=\"width:%1$dpx;font-size:12px;font-weight:bold;font-family:serif;\">%2$s</div></html>", 150, jTfMessageHere.getText(),"Rohit Suthar <br>");
+			String text = String.format("<html><div style=\"width:%dpx;\">%s</div></html>",150, jTfMessageHere.getText());
 			jLabelMessage.setText(text);
 			jLabelMessage.setBorder(rightBubble);
 			rightBubbleConstraints.gridy = i;
@@ -136,7 +136,8 @@ public class ChatActivity {
 	
 	private void setReceiverMessage() {
 		jLabelMessage = new JLabel();
-		String text = String.format("<html><div style=\"width:%dpx;\">%s</div></html>", 150, jTfMessageHere.getText());
+		
+		String text = String.format("<html><div style=\"width:%1$dpx;font-size:8px;text-align:right;\">%3$s</div><div style=\"width:%1$dpx;font-size:12px;font-weight:bold;font-family:serif;\">%2$s</div></html>", 150, jTfMessageHere.getText(),"Rohit Suthar <br>");
 		jLabelMessage.setText(text);
 		
 		jLabelMessage.setBorder(leftBubble);
@@ -150,7 +151,7 @@ public class ChatActivity {
 	}
 	
 	private void initializeAllWithProperties() {
-		//Username text field
+		//User name text field
 		jTfMessageHere.setPreferredSize(new Dimension(550,35));
 		jTfMessageHere.setBackground(Color.WHITE);
 		jTfMessageHere.setBorder(compoundBorder);
