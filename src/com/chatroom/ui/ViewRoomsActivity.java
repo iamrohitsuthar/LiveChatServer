@@ -17,7 +17,11 @@ import javax.swing.*;
 import javax.swing.border.LineBorder;
 import javax.swing.plaf.InsetsUIResource;
 
+import com.chatroom.client.ClientModel;
 import com.chatroom.configuration.Config;
+import com.chatroom.models.Request;
+import com.chatroom.models.Response;
+import com.chatroom.others.Message;
 
 public class ViewRoomsActivity {
 	private JLabel jLabel;
@@ -26,9 +30,11 @@ public class ViewRoomsActivity {
 	private JButton jBtnJoinRoom;
 	private JComboBox<String> jComboBox;
 	private BufferedImage iconLogo;
-
+	private ClientModel clientModel;
+	
 	@SuppressWarnings("serial")
-	public ViewRoomsActivity() throws IOException {
+	public ViewRoomsActivity(ClientModel cm) throws IOException {
+		clientModel = cm;
 		jFrame = new JFrame("CHATROOM VIEW ROOMS");
 		
 		iconLogo = ImageIO.read(this.getClass().getResource("/logo.png"));
@@ -41,15 +47,49 @@ public class ViewRoomsActivity {
 			}
 		});
 		
-		String rooms[] = {"N3","My Room","First Room","Test","Free Room","Default Room"};
+
 		jBtnJoinRoom = new JButton("JOIN ROOM");
 		jLabelTitle = new JLabel("Select room that you want to join");
-		jComboBox = new JComboBox<>(rooms);
-		
-		initializeAllWithProperties();
-
+		try
+		{
+			jComboBox = new JComboBox<>(getRooms());
+			initializeAllWithProperties();
+		}
+		catch( RuntimeException e)
+		{
+			e.printStackTrace();
+			new MainMenuOptions(clientModel);
+			jFrame.dispose();
+		}
 	}
 	
+	private String[] getRooms() throws RuntimeException{
+		String[] rooms = {};
+		Request request = new Request(Request.Type.VIEW_ROOMS.ordinal(),clientModel.getClientID(),clientModel.getRoomId(),"");
+		try {
+			
+			ClientModel.objectOutputStream.writeObject(request);
+			ClientModel.objectOutputStream.flush();
+			Response response = (Response) ClientModel.objectInputStream.readObject();
+			if( response.getSuccess())
+			{
+				Message.println("Getting list of rooms...");
+				rooms = response.getContents().split(",");
+			}
+			else
+			{
+				Message.println(response.getContents());
+				JOptionPane.showMessageDialog(null,response.getContents(), null, JOptionPane.ERROR_MESSAGE);
+				throw new RuntimeException("no_rooms");
+			}
+			
+		} catch (IOException | ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		
+		return rooms;
+	}
+
 	private void ListeningEvents() {
 		jBtnJoinRoom.addActionListener(new ActionListener() {	
 			@Override
@@ -125,7 +165,7 @@ public class ViewRoomsActivity {
 		ListeningEvents();
 	}
 	
-	public static void main(String args[]) throws IOException {
-		new ViewRoomsActivity();
-	}	
+//	public static void main(String args[]) throws IOException {
+//		new ViewRoomsActivity();
+//	}	
 }
