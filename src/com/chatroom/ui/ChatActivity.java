@@ -4,63 +4,63 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
-import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.image.BufferedImage;
+import java.awt.event.KeyEvent;
 import java.io.IOException;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.border.AbstractBorder;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
-import javax.swing.plaf.InsetsUIResource;
+
+import com.chatroom.configuration.Config;
+import com.chatroom.others.TextBubbleBorder;
 
 public class ChatActivity {
 	private JFrame jFrame;
 	private JButton jBtnSend;
 	private JTextField jTfMessageHere;
 	private CompoundBorder compoundBorder;
-	private CompoundBorder compoundBorderMessage;
 	private JPanel jPanel;
 	private JPanel jPanelChatWindow;
 	private int i = 0;
+	private JScrollPane jScrollPane;
+	private JLabel jLabelMessage;
+	private AbstractBorder leftBubble;
+	private AbstractBorder rightBubble;
+	private GridBagConstraints leftBubbleConstraints;
+	private GridBagConstraints rightBubbleConstraints;
 	
-	@SuppressWarnings("serial")
 	public ChatActivity() throws IOException {
 		jFrame = new JFrame("CHATROOM Chats");
+		
 		jPanel = new JPanel();
 		jPanelChatWindow = new JPanel();
-		
-		
-		//setting main background
-		jFrame.setContentPane(new JPanel() {
-			BufferedImage myImage = ImageIO.read(this.getClass().getResource("/background.png"));
-			public void paintComponent(Graphics g) {
-				super.paintComponent(g);
-				g.drawImage(myImage, 0, 0, this);
-			}
-		});
-		
+
 		//creating compound border for Text Field to specify left margin to the text
 		Border lineBorder = BorderFactory.createLineBorder(Color.blue, 1);
 		Border emptyBorder = new EmptyBorder(0,10,0,0); //left margin for text
 		compoundBorder = new CompoundBorder(lineBorder,emptyBorder);
 		
-		Border lineBorder1 = BorderFactory.createLineBorder(Color.WHITE, 3);
-		Border emptyBorder1 = new EmptyBorder(0,10,0,10);
-		compoundBorderMessage = new CompoundBorder(lineBorder1,emptyBorder1);
+		leftBubble = new TextBubbleBorder(Config.colorPrimary,2, 10, 16); //left chat bubble border
+		rightBubble = new TextBubbleBorder(Config.colorPrimary,2, 10, 16,false); //right chat bubble border
+		
+		rightBubbleConstraints = new GridBagConstraints(0, i, 1, 1, 1.0, 0,
+	            GridBagConstraints.NORTHEAST, GridBagConstraints.NONE, new Insets(
+	                    0, 0, 5, 0), 0, 0);
+		
+		leftBubbleConstraints = new GridBagConstraints(0, i, 1, 1, 1.0, 0,
+	            GridBagConstraints.NORTHWEST, GridBagConstraints.NONE, new Insets(
+	                    0, 0, 5, 0), 0, 0);
 		
 		jTfMessageHere = new JTextField("Type your message here");
 		jBtnSend = new JButton("Send");
@@ -75,7 +75,7 @@ public class ChatActivity {
 			public void focusLost(FocusEvent e) {
 				if(jTfMessageHere.getText().length() == 0) {
 					jTfMessageHere.setForeground(Color.gray);
-					jTfMessageHere.setText("Enter Username");
+					jTfMessageHere.setText("Type your message here");
 				}
 				
 			}
@@ -90,20 +90,63 @@ public class ChatActivity {
 		jBtnSend.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				JLabel label = new JLabel("Hi");
-				label.setFont(new Font("Serif",Font.BOLD,20));
-				label.setBorder(compoundBorderMessage);
-				
-				GridBagConstraints gbc = new GridBagConstraints(0, i, 1, 1, 1.0, 0,
-			            GridBagConstraints.NORTHWEST, GridBagConstraints.NONE, new Insets(
-			                    0, 0, 5, 0), 0, 0);
-				jPanelChatWindow.add(label,gbc);
-				jPanelChatWindow.revalidate();
-				jPanelChatWindow.repaint();
-				i++;
+				if(i%2 == 0)
+					setSenderMessage();
+				else
+					setReceiverMessage();
 			}
 		});
 		
+		int condition = JComponent.WHEN_FOCUSED;
+		InputMap inputMap = jTfMessageHere.getInputMap(condition);
+		ActionMap actionMap = jTfMessageHere.getActionMap();
+		KeyStroke enterKey = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);   
+		inputMap.put(enterKey, enterKey.toString());
+		actionMap.put(enterKey.toString(), new AbstractAction() {
+		    @Override
+		    public void actionPerformed(ActionEvent e) {
+		    	setSenderMessage();
+		    	jTfMessageHere.setForeground(Color.gray);
+				jTfMessageHere.setText("Type your message here");
+				jBtnSend.requestFocus();
+		    }
+		});
+		
+	}
+	
+	private void setSenderMessage() {
+		if(!jTfMessageHere.getText().equals("Type your message here")) {
+			jLabelMessage = new JLabel();
+			String text = String.format("<html><div style=\"width:%1$dpx;font-size:8px;text-align:right;\">%3$s</div><div style=\"width:%1$dpx;font-size:12px;font-weight:bold;font-family:serif;\">%2$s</div></html>", 150, jTfMessageHere.getText(),"Rohit Suthar <br>");
+			jLabelMessage.setText(text);
+			jLabelMessage.setBorder(rightBubble);
+			rightBubbleConstraints.gridy = i;
+			jPanelChatWindow.add(jLabelMessage,rightBubbleConstraints);
+			jPanelChatWindow.revalidate();
+			jPanelChatWindow.repaint();
+			i++;
+			clearTextMessage();
+		}
+	}
+	
+	private void clearTextMessage() {
+		jTfMessageHere.setForeground(Color.gray);
+		jTfMessageHere.setText("Type your message here");
+	}
+	
+	private void setReceiverMessage() {
+		jLabelMessage = new JLabel();
+		String text = String.format("<html><div style=\"width:%dpx;\">%s</div></html>", 150, jTfMessageHere.getText());
+		jLabelMessage.setText(text);
+		
+		jLabelMessage.setBorder(leftBubble);
+		jLabelMessage.setFont(new Font("Serif",Font.BOLD,12));
+		leftBubbleConstraints.gridy = i;
+		jPanelChatWindow.add(jLabelMessage,leftBubbleConstraints);
+		jPanelChatWindow.revalidate();
+		jPanelChatWindow.repaint();
+		i++;
+		clearTextMessage();
 	}
 	
 	private void initializeAllWithProperties() {
@@ -131,36 +174,22 @@ public class ChatActivity {
 		
 		jFrame.setLayout(new BorderLayout());
 		jFrame.add(BorderLayout.PAGE_END,jPanel);
-		jFrame.add(BorderLayout.CENTER,jPanelChatWindow);
-		//jFrame.add(BorderLayout.LINE_END,jBtnSend);
 		
+		//jFrame.add(BorderLayout.CENTER,jPanelChatWindow);
 		
-//		jFrame.setLayout(new GridBagLayout());
-//		
-//		GridBagConstraints c = new GridBagConstraints();
-//		Insets buttonInsets = new Insets(20, 4, 4, 4);
-//		Insets textFieldInsets = new Insets(4, 4, 4, 4);
-//		Insets textTitle = new Insets(4, 4, 20, 4);
-//		
-//		Insets logoInsets = new InsetsUIResource(0, 0, 50, 0);
-//		c.anchor = GridBagConstraints.CENTER;
-//
-//		//setting username text field
-//		c.gridx = 0;
-//		c.gridy = 1;
-//		c.insets = textFieldInsets;
-//		jFrame.add(jTfMessageHere,c);
-//		
-//		//setting sign up button
-//		c.gridx = 0;
-//		c.gridy = 2;
-//		c.insets = buttonInsets;
-//		jFrame.add(jBtnSend,c);
-//		
+		jScrollPane = new JScrollPane(jPanelChatWindow);
+		jScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		jScrollPane.setBounds(0, 0, 864, 550);
+		JPanel p1 = new JPanel(null);
+		p1.setPreferredSize(new Dimension(864,600));
+		p1.add(jScrollPane);
+		jFrame.add(BorderLayout.CENTER,p1);
+		
 		jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		jFrame.setSize(800,550);
-		
+		jFrame.setSize(864,614);
+		jFrame.setLocationRelativeTo(null);
 		jFrame.setVisible(true);
+		jFrame.setResizable(false);		
 		
 		//removing focus from editext and set it to the button
 		jFrame.getRootPane().setDefaultButton(jBtnSend);
