@@ -39,6 +39,7 @@ public class ChatActivity {
 	private AbstractBorder rightBubble;
 	private GridBagConstraints leftBubbleConstraints;
 	private GridBagConstraints rightBubbleConstraints;
+	private GridBagConstraints centerConstraints;
 	
 	public ChatActivity() throws IOException {
 		jFrame = new JFrame("CHATROOM Chats");
@@ -60,6 +61,10 @@ public class ChatActivity {
 		
 		leftBubbleConstraints = new GridBagConstraints(0, i, 1, 1, 1.0, 0,
 	            GridBagConstraints.NORTHWEST, GridBagConstraints.NONE, new Insets(
+	                    0, 0, 5, 0), 0, 0);
+		
+		centerConstraints = new GridBagConstraints(0, i, 1, 1, 1.0, 0,
+	            GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(
 	                    0, 0, 5, 0), 0, 0);
 		
 		jTfMessageHere = new JTextField("Type your message here");
@@ -132,6 +137,18 @@ public class ChatActivity {
 	private void clearTextMessage() {
 		jTfMessageHere.setForeground(Color.gray);
 		jTfMessageHere.setText("Type your message here");
+	}
+	
+	private void displayStatusMessages(String message) {
+		jLabelMessage = new JLabel();
+		String text = String.format("<html><div style=\"width:%dpx;text-align:center;\">%s</div></html>",300, message);
+		jLabelMessage.setText(text);
+		//jLabelMessage.setBorder(new LineBorder(Config.colorPrimary,2));
+		centerConstraints.gridy = i;
+		jPanelChatWindow.add(jLabelMessage,centerConstraints);
+		jPanelChatWindow.revalidate();
+		jPanelChatWindow.repaint();
+		i++;
 	}
 	
 	private void setReceiverMessage() {
