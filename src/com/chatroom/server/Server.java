@@ -175,7 +175,6 @@ class RequestAnalyser extends Thread{
 							break;
 					case 5:
 							//join room
-						
 							String roomName1 = request.getContents();
 							int clientId = request.getClientId();
 							int roomId1 = -1;
@@ -365,10 +364,12 @@ class MessageHandler  extends Thread{
 					}
 					if(recieverId != -1)
 					{
-						msg = "\n<"+sender+"> ( PersonalMessage ): "+request.getContents().substring(request.getContents().indexOf(" "));
+						if(recieverId == request.getClientId())
+							continue;
+						msg = sender + " " +request.getContents().substring(request.getContents().indexOf(" "));
 						ClientThread ct =  Server.clientHolder.get(recieverId); //gives the client thread object
 						ObjectOutputStream oos = ct.objectOutputStream;
-						Response res = new Response(Response.Type.MSG.ordinal(),true,msg);
+						Response res = new Response(Response.Type.P_MSG.ordinal(),true,msg);
 						oos.writeObject(res);
 						oos.flush();
 						continue;
@@ -376,10 +377,10 @@ class MessageHandler  extends Thread{
 					else
 					{
 						// user name wrong
-						msg = "\n<server>: Wrong username " + reciever;
+						msg = "Wrong username " + reciever;
 						ClientThread ct =  Server.clientHolder.get(request.getClientId()); //gives the client thread object
 						ObjectOutputStream oos = ct.objectOutputStream;
-						Response res = new Response(Response.Type.MSG.ordinal(),true,msg);
+						Response res = new Response(Response.Type.STATUS_MSG.ordinal(),true,msg);
 						oos.writeObject(res);
 						oos.flush();
 						continue;
@@ -399,10 +400,18 @@ class MessageHandler  extends Thread{
 								if(id != request.getClientId())
 								{
 									ClientThread ct =  Server.clientHolder.get(id); //gives the client thread object
-									ObjectOutputStream oos = ct.objectOutputStream;
-									Response res = new Response(Response.Type.STATUS_MSG.ordinal(),true,msg);
-									oos.writeObject(res);
-									oos.flush();
+									try
+									{
+										ObjectOutputStream oos = ct.objectOutputStream;
+										Response res = new Response(Response.Type.STATUS_MSG.ordinal(),true,msg);
+										oos.writeObject(res);
+										oos.flush();
+									}
+									catch( Exception e )
+									{
+										e.printStackTrace(new PrintWriter(Server.errors));
+										LogFileWriter.Log("8900" + Server.errors.toString());
+									}
 								}
 								else
 								{
@@ -411,7 +420,7 @@ class MessageHandler  extends Thread{
 									{
 										if(request.getContents().equals("sv_exit")) {
 											ObjectOutputStream oos = ct.objectOutputStream;
-											Response res = new Response(Response.Type.MSG.ordinal(),true,"sv_exit_successful");
+											Response res = new Response(Response.Type.STATUS_MSG.ordinal(),true,"sv_exit_successful");
 											oos.writeObject(res);
 											oos.flush();
 										}
@@ -419,18 +428,13 @@ class MessageHandler  extends Thread{
 									catch( Exception e )
 									{
 										e.printStackTrace(new PrintWriter(Server.errors));
-										LogFileWriter.Log(Server.errors.toString());
+										LogFileWriter.Log("asdf" + Server.errors.toString());
 									}
 									finally
 									{
 										if( request.getContents().equals("sv_logout") )
 										{
 											RequestAnalyser.logout(ct,request);
-										}	
-										else
-										{
-											Set<Integer> set1 = Server.roomsHolder.get(request.getRoomId());
-											set1.remove(id);
 										}
 									}
 								}
@@ -458,13 +462,17 @@ class MessageHandler  extends Thread{
 						}
 						catch(Exception e) {
 							e.printStackTrace(new PrintWriter(Server.errors));
-							LogFileWriter.Log(Server.errors.toString());
+							LogFileWriter.Log("abcd" + Server.errors.toString());
 						}
+				}
+				if(request.getContents().equals("sv_exit")) {
+					Set<Integer> set1 = Server.roomsHolder.get(request.getRoomId());
+					set1.remove(request.getClientId());
 				}
 			}
 			catch (Exception e) {
 				e.printStackTrace(new PrintWriter(Server.errors));
-				LogFileWriter.Log(Server.errors.toString());
+				LogFileWriter.Log("1234" + Server.errors.toString());
 			}
 		}
 	}
