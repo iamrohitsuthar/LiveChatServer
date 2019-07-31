@@ -10,6 +10,8 @@ import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import javax.imageio.ImageIO;
@@ -30,6 +32,8 @@ public class ViewRoomsActivity {
 	private JButton jBtnJoinRoom;
 	private JComboBox<String> jComboBox;
 	private BufferedImage iconLogo;
+	private BufferedImage back_arrow_image;
+	private JLabel jLabel_back_arrow_image;
 	private ClientModel clientModel;
 	
 	@SuppressWarnings("serial")
@@ -38,6 +42,7 @@ public class ViewRoomsActivity {
 		jFrame = new JFrame("CHATROOM VIEW ROOMS");
 		
 		iconLogo = ImageIO.read(this.getClass().getResource("/logo.png"));
+		back_arrow_image = ImageIO.read(this.getClass().getResource("/back_arrow.png"));
 		
 		jFrame.setContentPane(new JPanel() {
 			BufferedImage myImage = ImageIO.read(this.getClass().getResource("/background.png"));
@@ -97,6 +102,40 @@ public class ViewRoomsActivity {
 				//TODO: add join room code
 			}
 		});
+	
+		jLabel_back_arrow_image.addMouseListener(new MouseListener() {
+			
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				
+			}
+			
+			@Override
+			public void mousePressed(MouseEvent e) {
+				
+			}
+			
+			@Override
+			public void mouseExited(MouseEvent e) {
+				
+			}
+			
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				
+			}
+			
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				try {
+					new MainMenuOptions(clientModel);
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+				jFrame.dispose();
+				
+			}
+		});
 	}
 	
 	@SuppressWarnings("serial")
@@ -126,8 +165,14 @@ public class ViewRoomsActivity {
 		Insets textTitle = new Insets(4, 160, 20, 4);
 		Insets logoInsets = new InsetsUIResource(0, 200, 50, 0);
 		Insets buttonInsets = new Insets(4, 200, 20, 4);
+		Insets backArrowInsets = new Insets(0, 10, 100, 0);
 		
 		c.anchor = GridBagConstraints.NORTHWEST;
+		c.insets = backArrowInsets;
+		jLabel_back_arrow_image = new JLabel(new ImageIcon(back_arrow_image));
+		jLabel_back_arrow_image.setPreferredSize(new Dimension(50,50));
+		jFrame.add(jLabel_back_arrow_image,c);
+		
 		c.weightx = 1.0;
 		c.weighty = 0;
 		c.gridwidth = 1;
@@ -136,7 +181,6 @@ public class ViewRoomsActivity {
 		c.gridy = 1;
 		
 		jLabel = new JLabel(new ImageIcon(iconLogo));
-		jLabel.setBounds(0, 0, 100, 100);
 		jLabel.setPreferredSize(new Dimension(150,150));
 		jFrame.add(jLabel,c);
 		
