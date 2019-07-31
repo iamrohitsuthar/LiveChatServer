@@ -2,7 +2,7 @@ package com.chatroom.models;
 import java.io.Serializable;
 public class Request implements Serializable{
 	public enum Type {
-		ACK,SIGN_UP, LOGIN, LOGOUT, CREATE_ROOM, JOIN_ROOM, VIEW_ROOMS, MSG;
+		ACK,SIGN_UP, LOGIN, LOGOUT, CREATE_ROOM, JOIN_ROOM, VIEW_ROOMS, MSG, STATUS_MSG;
 	}
 	
 	int id;

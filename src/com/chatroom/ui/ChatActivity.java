@@ -14,14 +14,12 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
-
 import javax.swing.*;
 import javax.swing.border.AbstractBorder;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
-
 import com.chatroom.client.ClientModel;
 import com.chatroom.configuration.Config;
 import com.chatroom.others.TextBubbleBorder;
