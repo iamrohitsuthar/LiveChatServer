@@ -20,6 +20,9 @@ import javax.swing.plaf.OptionPaneUI;
 
 import com.chatroom.client.ClientModel;
 import com.chatroom.configuration.Config;
+import com.chatroom.models.Request;
+import com.chatroom.models.Response;
+import com.chatroom.others.Message;
 
 public class MainMenuOptions {
 	private JLabel jLabel;
@@ -31,6 +34,8 @@ public class MainMenuOptions {
 	private JButton jBtnLogout;
 	private BufferedImage iconLogo;
 	private ClientModel clientModel;
+	private Request request;
+	private Response response;
 
 	@SuppressWarnings("serial")
 	public MainMenuOptions(ClientModel cm) throws IOException {
@@ -73,6 +78,7 @@ public class MainMenuOptions {
 				displayAlertDialog(2);
 			}
 		});
+		
 		jBtnViewRooms.addActionListener(new ActionListener() {
 			
 			@Override
@@ -185,6 +191,38 @@ public class MainMenuOptions {
 		ListeningEvents();
 	}
 	
+	private void createAndJoinRoom(String rName, boolean create) throws Exception
+	{
+		if(create)
+			request = new Request(Request.Type.CREATE_ROOM.ordinal(),clientModel.getClientID(),clientModel.getRoomId(),rName);
+		else
+			request = new Request(Request.Type.JOIN_ROOM.ordinal(),clientModel.getClientID(),clientModel.getRoomId(),rName);
+		
+		ClientModel.objectOutputStream.writeObject(request);
+		ClientModel.objectOutputStream.flush();
+		Object obj =  ClientModel.objectInputStream.readObject();		
+		if( obj.getClass() == Response.class )
+			response = (Response) obj;
+		else
+		{
+			throw new Exception("Object returned is not of type Response. but of " + obj.getClass().toString() );
+		}
+		if( response.getSuccess())
+		{
+				//connected();
+				Message.println(response.getContents()); //room created and joined successfully
+				int hashIndex = response.getContents().indexOf('#');
+				clientModel.setRoomId(Integer.parseInt(response.getContents().substring(hashIndex+1, response.getContents().indexOf(" ", hashIndex))));
+				new ChatActivity(clientModel);
+				jFrame.dispose();
+		}
+		else
+		{
+			JOptionPane.showMessageDialog(null, response.getContents(), null, JOptionPane.ERROR_MESSAGE);
+			Message.println(response.getContents());
+		}
+	}
+	
 	private void displayAlertDialog(int which) {
 		JPanel jPanel = new JPanel();
 		jPanel.setSize(new Dimension(200, 64));
@@ -202,7 +240,18 @@ public class MainMenuOptions {
 		else
 			UIManager.put("OptionPane.okButtonText", "Join Room");
 		
-		JOptionPane.showMessageDialog(null, jPanel, "Enter Room name",JOptionPane.PLAIN_MESSAGE);
+		int choice = JOptionPane.showOptionDialog(null, jPanel, "Enter Room Name", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null);
+		if(choice == JOptionPane.OK_OPTION) {
+			try {
+				if(which == 1)
+					createAndJoinRoom(jTextField.getText().toString(), true);
+				else
+					createAndJoinRoom(jTextField.getText().toString(), false);
+			}
+			catch(Exception e) {
+				e.printStackTrace();
+			}
+		}
 	}
 	
 //	public static void main(String args[]) throws IOException {
