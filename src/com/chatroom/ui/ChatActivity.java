@@ -22,6 +22,7 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
+import com.chatroom.client.ClientModel;
 import com.chatroom.configuration.Config;
 import com.chatroom.others.TextBubbleBorder;
 
@@ -40,10 +41,11 @@ public class ChatActivity {
 	private GridBagConstraints leftBubbleConstraints;
 	private GridBagConstraints rightBubbleConstraints;
 	private GridBagConstraints centerConstraints;
+	private ClientModel clientModel;
 	
-	public ChatActivity() throws IOException {
+	public ChatActivity(ClientModel clientModel) throws IOException {
+		this.clientModel = clientModel;
 		jFrame = new JFrame("CHATROOM Chats");
-		
 		jPanel = new JPanel();
 		jPanelChatWindow = new JPanel();
 
@@ -197,7 +199,7 @@ public class ChatActivity {
 		
 		jScrollPane = new JScrollPane(jPanelChatWindow);
 		jScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		jScrollPane.setBounds(0, 0, 864, 550);
+		jScrollPane.setBounds(0, 0, 864, 560);
 		JPanel p1 = new JPanel(null);
 		p1.setPreferredSize(new Dimension(864,600));
 		p1.add(jScrollPane);
@@ -216,8 +218,8 @@ public class ChatActivity {
 		ListeningEvents();
 	}
 	
-	public static void main(String args[]) throws IOException {
-		new ChatActivity();
-	}	
+//	public static void main(String args[]) throws IOException {
+//		new ChatActivity();
+//	}	
 }
 
