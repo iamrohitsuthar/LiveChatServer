@@ -200,7 +200,7 @@ public class MainMenuOptions {
 		
 		ClientModel.objectOutputStream.writeObject(request);
 		ClientModel.objectOutputStream.flush();
-		Object obj =  ClientModel.objectInputStream.readObject();		
+		Object obj =  ClientModel.objectInputStream.readObject();
 		if( obj.getClass() == Response.class )
 			response = (Response) obj;
 		else
