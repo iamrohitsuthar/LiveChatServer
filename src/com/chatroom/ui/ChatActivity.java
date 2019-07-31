@@ -22,6 +22,9 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import com.chatroom.client.ClientModel;
 import com.chatroom.configuration.Config;
+import com.chatroom.models.Request;
+import com.chatroom.models.Response;
+import com.chatroom.others.Message;
 import com.chatroom.others.TextBubbleBorder;
 
 public class ChatActivity {
@@ -40,6 +43,9 @@ public class ChatActivity {
 	private GridBagConstraints rightBubbleConstraints;
 	private GridBagConstraints centerConstraints;
 	private ClientModel clientModel;
+	private Request request = null;
+	private Response response = null;
+	private MessageListener messageListener;
 	
 	public ChatActivity(ClientModel clientModel) throws IOException {
 		this.clientModel = clientModel;
@@ -47,6 +53,9 @@ public class ChatActivity {
 		jPanel = new JPanel();
 		jPanelChatWindow = new JPanel();
 
+		messageListener = new MessageListener();
+		messageListener.start();
+		
 		//creating compound border for Text Field to specify left margin to the text
 		Border lineBorder = BorderFactory.createLineBorder(Color.blue, 1);
 		Border emptyBorder = new EmptyBorder(0,10,0,0); //left margin for text
@@ -71,7 +80,16 @@ public class ChatActivity {
 		jBtnSend = new JButton("Send");
 		
 		initializeAllWithProperties();
-
+		displayStatusMessages("You successfully created and joined the room");
+		displayStatusMessages("NOTE: You've entered the server. <br/>"
+				+ "For personal message type '@user_name your_message' without quotes<br/>"
+				+ "For exiting the room type 'sv_exit' without quotes<br/>"
+				+ "For logging out type 'sv_logout' without quotes");
+		
+		request = new Request(Request.Type.STATUS_MSG.ordinal(),clientModel.getClientID(),clientModel.getRoomId(),"joined the chat");
+		ClientModel.objectOutputStream.writeObject(request);
+		ClientModel.objectOutputStream.flush();
+		
 	}
 	
 	private void ListeningEvents() {
@@ -95,10 +113,12 @@ public class ChatActivity {
 		jBtnSend.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if(i%2 == 0)
+				try {
 					setSenderMessage();
-				else
-					setReceiverMessage();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
 		});
 		
@@ -110,7 +130,12 @@ public class ChatActivity {
 		actionMap.put(enterKey.toString(), new AbstractAction() {
 		    @Override
 		    public void actionPerformed(ActionEvent e) {
-		    	setSenderMessage();
+		    	try {
+					setSenderMessage();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 		    	jTfMessageHere.setForeground(Color.gray);
 				jTfMessageHere.setText("Type your message here");
 				jBtnSend.requestFocus();
@@ -119,8 +144,13 @@ public class ChatActivity {
 		
 	}
 	
-	private void setSenderMessage() {
-		if(!jTfMessageHere.getText().equals("Type your message here") && jTfMessageHere.getText().trim()	.length() > 0) {
+	private void setSenderMessage() throws IOException {
+		if(!jTfMessageHere.getText().equals("Type your message here") && jTfMessageHere.getText().trim().length() > 0) {
+			//sending message to the server
+			request = new Request(Request.Type.MSG.ordinal(),clientModel.getClientID(),clientModel.getRoomId(),jTfMessageHere.getText());
+			ClientModel.objectOutputStream.writeObject(request);
+			ClientModel.objectOutputStream.flush();
+			//displaying on the user UI window
 			jLabelMessage = new JLabel();
 			String text = String.format("<html><div style=\"width:%dpx;\">%s</div></html>",150, jTfMessageHere.getText());
 			jLabelMessage.setText(text);
@@ -141,7 +171,7 @@ public class ChatActivity {
 	
 	private void displayStatusMessages(String message) {
 		jLabelMessage = new JLabel();
-		String text = String.format("<html><div style=\"width:%dpx;text-align:center;\">%s</div></html>",300, message);
+		String text = String.format("<html><div style=\"width:%dpx;text-align:center;\">%s</div></html>",400, message);
 		jLabelMessage.setText(text);
 		//jLabelMessage.setBorder(new LineBorder(Config.colorPrimary,2));
 		centerConstraints.gridy = i;
@@ -151,12 +181,10 @@ public class ChatActivity {
 		i++;
 	}
 	
-	private void setReceiverMessage() {
+	private void setReceiverMessage(String senderName, String message) {
 		jLabelMessage = new JLabel();
-		
-		String text = String.format("<html><div style=\"width:%1$dpx;font-size:8px;text-align:right;\">%3$s</div><div style=\"width:%1$dpx;font-size:12px;font-weight:bold;font-family:serif;\">%2$s</div></html>", 150, jTfMessageHere.getText(),"Rohit Suthar <br>");
-		jLabelMessage.setText(text);
-		
+		String text = String.format("<html><div style=\"width:%1$dpx;font-size:8px;text-align:right;\">%3$s</div><div style=\"width:%1$dpx;font-size:12px;font-weight:bold;font-family:serif;\">%2$s</div></html>", 150, message, senderName + "<br>");
+		jLabelMessage.setText(text);		
 		jLabelMessage.setBorder(leftBubble);
 		jLabelMessage.setFont(new Font("Serif",Font.BOLD,12));
 		leftBubbleConstraints.gridy = i;
@@ -216,8 +244,50 @@ public class ChatActivity {
 		ListeningEvents();
 	}
 	
+	
+	class MessageListener extends Thread{
+		public void run()
+		{
+			while(true) {
+				try {
+					response = (Response) ClientModel.objectInputStream.readObject();
+					if(response.getId() == Response.Type.STATUS_MSG.ordinal())
+						displayStatusMessages(response.getContents());
+					else {
+						String msg = response.getContents();
+						String name = msg.substring(0, msg.indexOf(" "));
+						msg = msg.substring(msg.indexOf(" ")+1);
+						setReceiverMessage(name,msg);
+					}
+					
+					Message.println(response.getContents());
+					if(response.getContents().equals("sv_exit_successful")) {
+						synchronized(this){
+							this.wait();
+						}
+					}
+					else if(response.getId() == Response.Type.LOGOUT.ordinal()) {
+						synchronized(this){
+							this.wait();
+						}
+					}
+					
+				} catch (ClassNotFoundException | IOException e) {
+//					e.printStackTrace(new PrintWriter(errors));
+//					LogFileWriter.Log(errors.toString());
+					break;
+				} catch (InterruptedException e) {
+//					e.printStackTrace(new PrintWriter(errors));
+//					LogFileWriter.Log(errors.toString());
+				}
+			}
+		}
+	}
+	
 //	public static void main(String args[]) throws IOException {
 //		new ChatActivity();
-//	}	
+//	}
 }
+
+
 

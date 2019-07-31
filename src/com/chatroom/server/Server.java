@@ -236,6 +236,17 @@ class RequestAnalyser extends Thread{
 								}
 							}
 							break;
+					case 8:
+							if(request.getContents().equals(" ") || request.getContents().equals(""))
+								break;
+							Server.messagequeue.add(request);
+							if( Server.messageHandler.getState() == State.WAITING )
+							{
+								synchronized (Server.messageHandler) {
+									Server.messageHandler.notify();
+								}
+							}
+							break;
 						
 					default:
 						Message.println("Invalid");
@@ -389,7 +400,7 @@ class MessageHandler  extends Thread{
 								{
 									ClientThread ct =  Server.clientHolder.get(id); //gives the client thread object
 									ObjectOutputStream oos = ct.objectOutputStream;
-									Response res = new Response(Response.Type.MSG.ordinal(),true,msg);
+									Response res = new Response(Response.Type.STATUS_MSG.ordinal(),true,msg);
 									oos.writeObject(res);
 									oos.flush();
 								}
@@ -426,12 +437,22 @@ class MessageHandler  extends Thread{
 							}
 							else
 							{
-								msg = "\n<"+sender+">: "+request.getContents();
-								ClientThread ct =  Server.clientHolder.get(id); //gives the client thread object
-								ObjectOutputStream oos = ct.objectOutputStream;
-								Response res = new Response(Response.Type.MSG.ordinal(),true,msg);
-								oos.writeObject(res);
-								oos.flush();
+								if((request.getId() == Request.Type.STATUS_MSG.ordinal()) || id != request.getClientId()) {
+									if(id == request.getClientId()) 
+										msg = sender + " " + request.getContents() + " Active Users: "+ set.size();
+									else	
+										msg = sender + " " + request.getContents();
+									ClientThread ct =  Server.clientHolder.get(id); //gives the client thread object
+									ObjectOutputStream oos = ct.objectOutputStream;
+									Response res = null;
+									if(request.getId() == Request.Type.STATUS_MSG.ordinal())
+										res = new Response(Response.Type.STATUS_MSG.ordinal(),true,msg);
+									else 
+										res = new Response(Response.Type.MSG.ordinal(),true,msg);
+									oos.writeObject(res);
+									oos.flush();
+								}
+								
 							}
 							
 						}

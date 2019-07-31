@@ -218,6 +218,7 @@ public class MainMenuOptions {
 		}
 		else
 		{
+			UIManager.put("OptionPane.okButtonText", "OK");
 			JOptionPane.showMessageDialog(null, response.getContents(), null, JOptionPane.ERROR_MESSAGE);
 			Message.println(response.getContents());
 		}
