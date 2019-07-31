@@ -246,39 +246,59 @@ public class ChatActivity {
 	
 	
 	class MessageListener extends Thread{
+		boolean isContinue = true;
 		public void run()
 		{
-			while(true) {
+			while(true && isContinue ) {
 				try {
 					response = (Response) ClientModel.objectInputStream.readObject();
-					if(response.getId() == Response.Type.STATUS_MSG.ordinal())
+					if(response.getId() == Response.Type.STATUS_MSG.ordinal() || response.getId() == Response.Type.LOGOUT.ordinal())
 						displayStatusMessages(response.getContents());
 					else {
 						String msg = response.getContents();
 						String name = msg.substring(0, msg.indexOf(" "));
+						if(response.getId() == Response.Type.P_MSG.ordinal())
+							name += "(PM)";
 						msg = msg.substring(msg.indexOf(" ")+1);
 						setReceiverMessage(name,msg);
 					}
 					
 					Message.println(response.getContents());
 					if(response.getContents().equals("sv_exit_successful")) {
-						synchronized(this){
-							this.wait();
-						}
+//						new MainMenuOptions(clientModel);
+						isContinue = false;
+						
+						SwingUtilities.invokeLater(new Runnable() {
+							   public void run() {
+								try {
+									new MainMenuOptions(clientModel);
+								} catch (IOException e) {
+									Message.println("error");
+									e.printStackTrace();
+								}
+								   jFrame.dispose();
+							   }
+							});
 					}
 					else if(response.getId() == Response.Type.LOGOUT.ordinal()) {
-						synchronized(this){
-							this.wait();
-						}
-					}
+						isContinue = false;
+						SwingUtilities.invokeLater(new Runnable() {
+						   public void run() {
+							try {
+								new SignInActivity(clientModel);
+							} catch (IOException e) {
+								Message.println("error");
+								e.printStackTrace();
+							}
+							   jFrame.dispose();
+						   }
+						});
+				}
 					
 				} catch (ClassNotFoundException | IOException e) {
 //					e.printStackTrace(new PrintWriter(errors));
 //					LogFileWriter.Log(errors.toString());
 					break;
-				} catch (InterruptedException e) {
-//					e.printStackTrace(new PrintWriter(errors));
-//					LogFileWriter.Log(errors.toString());
 				}
 			}
 		}
