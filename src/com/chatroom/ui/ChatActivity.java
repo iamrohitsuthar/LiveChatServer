@@ -190,9 +190,6 @@ public class ChatActivity {
 				jBtnSend.requestFocus();
 		    }
 		});
-		
-		
-		
 	}
 	
 	private void setSenderMessage() throws IOException {
