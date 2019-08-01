@@ -35,6 +35,8 @@ public class ViewRoomsActivity {
 	private BufferedImage back_arrow_image;
 	private JLabel jLabel_back_arrow_image;
 	private ClientModel clientModel;
+	private Request request = null;
+	private Response response = null;
 	
 	@SuppressWarnings("serial")
 	public ViewRoomsActivity(ClientModel cm) throws IOException {
@@ -95,11 +97,48 @@ public class ViewRoomsActivity {
 		return rooms;
 	}
 
+	private void createAndJoinRoom(String rName, boolean create) throws Exception
+	{
+		if(create)
+			request = new Request(Request.Type.CREATE_ROOM.ordinal(),clientModel.getClientID(),clientModel.getRoomId(),rName);
+		else
+			request = new Request(Request.Type.JOIN_ROOM.ordinal(),clientModel.getClientID(),clientModel.getRoomId(),rName);
+		
+		ClientModel.objectOutputStream.writeObject(request);
+		ClientModel.objectOutputStream.flush();
+		Object obj =  ClientModel.objectInputStream.readObject();
+		if( obj.getClass() == Response.class )
+			response = (Response) obj;
+		else
+		{
+			throw new Exception("Object returned is not of type Response. but of " + obj.getClass().toString() );
+		}
+		if( response.getSuccess())
+		{
+				//connected();
+				Message.println(response.getContents()); //room created and joined successfully
+				int hashIndex = response.getContents().indexOf('#');
+				clientModel.setRoomId(Integer.parseInt(response.getContents().substring(hashIndex+1, response.getContents().indexOf(" ", hashIndex))));
+				new ChatActivity(clientModel);
+				jFrame.dispose();
+		}
+		else
+		{
+			JOptionPane.showMessageDialog(null, response.getContents(), null, JOptionPane.ERROR_MESSAGE);
+			Message.println(response.getContents());
+		}
+	}
+	
 	private void ListeningEvents() {
 		jBtnJoinRoom.addActionListener(new ActionListener() {	
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				//TODO: add join room code
+				try {
+					createAndJoinRoom(String.valueOf(jComboBox.getSelectedItem().toString().trim()), false);
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
 		});
 	
@@ -136,6 +175,7 @@ public class ViewRoomsActivity {
 				
 			}
 		});
+	
 	}
 	
 	@SuppressWarnings("serial")
@@ -209,7 +249,4 @@ public class ViewRoomsActivity {
 		ListeningEvents();
 	}
 	
-//	public static void main(String args[]) throws IOException {
-//		new ViewRoomsActivity();
-//	}	
 }
