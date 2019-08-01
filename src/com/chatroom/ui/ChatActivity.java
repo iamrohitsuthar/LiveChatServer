@@ -257,7 +257,6 @@ public class ChatActivity {
 			jPanelChatWindow.revalidate();
 			jPanelChatWindow.repaint();
 			i++;
-			
 			clearTextMessage();
 		}
 		else {
@@ -284,7 +283,14 @@ public class ChatActivity {
 	
 	private void setReceiverMessage(String senderName, String message) {
 		jLabelMessage = new JLabel();
-		String text = String.format("<html><div style=\"font-size:8px;text-align:right;\">%3$s</div><div style=\"width:%1$dpx;\">%2$s</div></html>", 150, message, senderName + "<br>");
+		String temp;
+		if(message.trim().length() <= 3)
+			temp = "20px";
+		else if(message.trim().length() <= 51)
+			temp = "auto";
+		else
+			temp = "300px";
+		String text = String.format("<html><div style=\"font-size:8px;text-align:right;\">%3$s</div><div style=\"width:%1$spx;\"><p style=\"width:%s;word-break: break-all;\">%2$s</p></div></html>", temp, message, senderName + "<br>");
 		jLabelMessage.setText(text);		
 		jLabelMessage.setBorder(leftBubble);
 		leftBubbleConstraints.gridy = i;

@@ -5,19 +5,15 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import javax.swing.plaf.InsetsUIResource;
-import javax.swing.plaf.OptionPaneUI;
-
 import com.chatroom.client.ClientModel;
 import com.chatroom.configuration.Config;
 import com.chatroom.models.Request;
