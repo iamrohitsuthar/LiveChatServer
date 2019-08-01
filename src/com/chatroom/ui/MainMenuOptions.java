@@ -63,6 +63,23 @@ public class MainMenuOptions {
 
 	}
 	
+	private void logOut() throws Exception{
+		request = new Request(Request.Type.LOGOUT.ordinal(),clientModel.getClientID(),clientModel.getRoomId(),"");
+		ClientModel.objectOutputStream.writeObject(request);
+		ClientModel.objectOutputStream.flush();
+		response = (Response) ClientModel.objectInputStream.readObject();
+		if( response.getSuccess())
+		{
+			Message.println(response.getContents());
+			new SignInActivity(clientModel);
+			jFrame.dispose();
+		}
+		else
+		{
+			JOptionPane.showMessageDialog(null, response.getContents(), null, JOptionPane.ERROR_MESSAGE);
+		}
+	}
+	
 	private void ListeningEvents() {
 		jBtnCreateRoom.addActionListener(new ActionListener() {	
 			@Override
@@ -74,7 +91,6 @@ public class MainMenuOptions {
 		jBtnJoinRoom.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				//TODO: add join room code
 				displayAlertDialog(2);
 			}
 		});
@@ -83,12 +99,10 @@ public class MainMenuOptions {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
 				try {
 					new ViewRoomsActivity(clientModel);
 					jFrame.dispose();
 				} catch (IOException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 				
@@ -98,15 +112,11 @@ public class MainMenuOptions {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-//				try {
-//					jFrame.dispose();
-//					// @ToDO: ClientModel
-//					//new SignInActivity();
-//				} catch (IOException e1) {
-//					// TODO Auto-generated catch block
-//					e1.printStackTrace();
-//				}
-				
+				try {
+					logOut();
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
 			}
 		});
 	}
@@ -255,8 +265,6 @@ public class MainMenuOptions {
 		}
 	}
 	
-//	public static void main(String args[]) throws IOException {
-//		new MainMenuOptions();
-//	}	
+
 }
 
