@@ -13,7 +13,10 @@ import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
+
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.AbstractBorder;
 import javax.swing.border.Border;
@@ -26,6 +29,7 @@ import com.chatroom.models.Request;
 import com.chatroom.models.Response;
 import com.chatroom.others.Message;
 import com.chatroom.others.TextBubbleBorder;
+import com.mysql.jdbc.Buffer;
 
 public class ChatActivity {
 	private JFrame jFrame;
@@ -46,13 +50,15 @@ public class ChatActivity {
 	private Request request = null;
 	private Response response = null;
 	private MessageListener messageListener;
+	private JPanel optionsButtonsHolder;
 	
 	public ChatActivity(ClientModel clientModel) throws IOException {
 		this.clientModel = clientModel;
 		jFrame = new JFrame("CHATROOM Chats");
 		jPanel = new JPanel();
 		jPanelChatWindow = new JPanel();
-
+		optionsButtonsHolder = new JPanel();
+		
 		messageListener = new MessageListener();
 		messageListener.start();
 		
@@ -63,6 +69,17 @@ public class ChatActivity {
 		
 		leftBubble = new TextBubbleBorder(Config.colorPrimary,2, 10, 16); //left chat bubble border
 		rightBubble = new TextBubbleBorder(Config.colorPrimary,2, 10, 16,false); //right chat bubble border
+		
+		BufferedImage logout = ImageIO.read(this.getClass().getResource("/logout.png"));
+		BufferedImage exit = ImageIO.read(this.getClass().getResource("/exit.png"));
+		
+		JLabel jLabel_logout = new JLabel(new ImageIcon(logout));
+		jLabel_logout.setPreferredSize(new Dimension(50,50));
+		JLabel jLabel_exit = new JLabel(new ImageIcon(exit));
+		jLabel_exit.setPreferredSize(new Dimension(50,50));
+		
+		optionsButtonsHolder.add(jLabel_logout);
+		optionsButtonsHolder.add(jLabel_exit);
 		
 		rightBubbleConstraints = new GridBagConstraints(0, i, 1, 1, 1.0, 0,
 	            GridBagConstraints.NORTHEAST, GridBagConstraints.NONE, new Insets(
@@ -231,13 +248,14 @@ public class ChatActivity {
 		p1.add(jScrollPane);
 		jFrame.add(BorderLayout.CENTER,p1);
 		
+		jFrame.add(BorderLayout.NORTH,optionsButtonsHolder);
 		jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		jFrame.setSize(864,614);
 		jFrame.setLocationRelativeTo(null);
 		jFrame.setVisible(true);
 		jFrame.setResizable(false);		
 		
-		//removing focus from editext and set it to the button
+		//removing focus from edit text and set it to the button
 		jFrame.getRootPane().setDefaultButton(jBtnSend);
 		jBtnSend.requestFocus();
 		
@@ -304,9 +322,9 @@ public class ChatActivity {
 		}
 	}
 	
-//	public static void main(String args[]) throws IOException {
-//		new ChatActivity();
-//	}
+	public static void main(String args[]) throws IOException {
+		new ChatActivity(new ClientModel("localhost", 8793));
+	}
 }
 
 
