@@ -105,9 +105,7 @@ public class ChatActivity {
 		initializeAllWithProperties();
 		displayStatusMessages("You successfully created and joined the room");
 		displayStatusMessages("NOTE: You've entered the server. <br/>"
-				+ "For personal message type '@user_name your_message' without quotes<br/>"
-				+ "For exiting the room type 'sv_exit' without quotes<br/>"
-				+ "For logging out type 'sv_logout' without quotes");
+				+ "For personal message type '@user_name your_message' without quotes");
 		
 		request = new Request(Request.Type.STATUS_MSG.ordinal(),clientModel.getClientID(),clientModel.getRoomId(),"joined the chat");
 		ClientModel.objectOutputStream.writeObject(request);
