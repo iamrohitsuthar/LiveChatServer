@@ -13,6 +13,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
@@ -51,6 +53,9 @@ public class ChatActivity {
 	private Response response = null;
 	private MessageListener messageListener;
 	private JPanel optionsButtonsHolder;
+	private JLabel jLabel_logout;
+	private JLabel jLabel_exit;
+	
 	
 	public ChatActivity(ClientModel clientModel) throws IOException {
 		this.clientModel = clientModel;
@@ -73,13 +78,14 @@ public class ChatActivity {
 		BufferedImage logout = ImageIO.read(this.getClass().getResource("/logout.png"));
 		BufferedImage exit = ImageIO.read(this.getClass().getResource("/exit.png"));
 		
-		JLabel jLabel_logout = new JLabel(new ImageIcon(logout));
+		jLabel_logout = new JLabel(new ImageIcon(logout));
 		jLabel_logout.setPreferredSize(new Dimension(50,50));
-		JLabel jLabel_exit = new JLabel(new ImageIcon(exit));
+		jLabel_exit = new JLabel(new ImageIcon(exit));
 		jLabel_exit.setPreferredSize(new Dimension(50,50));
 		
-		optionsButtonsHolder.add(jLabel_logout);
 		optionsButtonsHolder.add(jLabel_exit);
+		optionsButtonsHolder.add(jLabel_logout);
+		
 		
 		rightBubbleConstraints = new GridBagConstraints(0, i, 1, 1, 1.0, 0,
 	            GridBagConstraints.NORTHEAST, GridBagConstraints.NONE, new Insets(
@@ -139,6 +145,34 @@ public class ChatActivity {
 			}
 		});
 		
+		jLabel_logout.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				super.mouseClicked(e);
+				try {
+					request = new Request(Request.Type.MSG.ordinal(),clientModel.getClientID(),clientModel.getRoomId(),"sv_logout");
+					ClientModel.objectOutputStream.writeObject(request);
+					ClientModel.objectOutputStream.flush();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+			}
+		});
+		
+		jLabel_exit.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				super.mouseClicked(e);
+				try {
+					request = new Request(Request.Type.MSG.ordinal(),clientModel.getClientID(),clientModel.getRoomId(),"sv_exit");
+					ClientModel.objectOutputStream.writeObject(request);
+					ClientModel.objectOutputStream.flush();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+			}
+		});
+		
 		int condition = JComponent.WHEN_FOCUSED;
 		InputMap inputMap = jTfMessageHere.getInputMap(condition);
 		ActionMap actionMap = jTfMessageHere.getActionMap();
@@ -158,6 +192,8 @@ public class ChatActivity {
 				jBtnSend.requestFocus();
 		    }
 		});
+		
+		
 		
 	}
 	
@@ -283,7 +319,6 @@ public class ChatActivity {
 					
 					Message.println(response.getContents());
 					if(response.getContents().equals("sv_exit_successful")) {
-//						new MainMenuOptions(clientModel);
 						isContinue = false;
 						
 						SwingUtilities.invokeLater(new Runnable() {
@@ -320,10 +355,6 @@ public class ChatActivity {
 				}
 			}
 		}
-	}
-	
-	public static void main(String args[]) throws IOException {
-		new ChatActivity(new ClientModel("localhost", 8793));
 	}
 }
 
