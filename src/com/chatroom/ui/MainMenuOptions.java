@@ -71,6 +71,8 @@ public class MainMenuOptions {
 		if( response.getSuccess())
 		{
 			Message.println(response.getContents());
+			clientModel.setRoomId(-1);
+			clientModel.setClientID(-1);
 			new SignInActivity(clientModel);
 			jFrame.dispose();
 		}

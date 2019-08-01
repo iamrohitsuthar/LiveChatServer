@@ -10,6 +10,8 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
@@ -55,7 +57,11 @@ public class ChatActivity {
 	private JPanel optionsButtonsHolder;
 	private JLabel jLabel_logout;
 	private JLabel jLabel_exit;
-	
+	private int tracker; //used for storing last maximum value of scroll bar
+	private boolean isSenderMsg;
+	private boolean isReadMode;
+	private int scrollDistance = 300;
+
 	
 	public ChatActivity(ClientModel clientModel) throws IOException {
 		this.clientModel = clientModel;
@@ -113,6 +119,10 @@ public class ChatActivity {
 		
 	}
 	
+	private void updateScrollbarPosition() {
+		jScrollPane.getVerticalScrollBar().setValue(jScrollPane.getVerticalScrollBar().getMaximum());
+	}
+	
 	private void ListeningEvents() {
 		jTfMessageHere.addFocusListener(new FocusListener() {	
 			@Override
@@ -126,7 +136,8 @@ public class ChatActivity {
 			
 			@Override
 			public void focusGained(FocusEvent e) {
-				jTfMessageHere.setText("");
+				if(jTfMessageHere.getText().equals("Type your message here"))
+					jTfMessageHere.setText("");
 				jTfMessageHere.setForeground(Color.black);	
 			}
 		});
@@ -135,9 +146,11 @@ public class ChatActivity {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
+					tracker = jScrollPane.getVerticalScrollBar().getMaximum();
 					setSenderMessage();
+					isSenderMsg = true;
+
 				} catch (IOException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 			}
@@ -171,6 +184,33 @@ public class ChatActivity {
 			}
 		});
 		
+		jScrollPane.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
+			
+			//for updating scroll bar position on message received
+			@Override
+			public void adjustmentValueChanged(AdjustmentEvent e) {
+				JScrollBar jsb = (JScrollBar) e.getAdjustable();
+				int e1 = jsb.getModel().getExtent();
+
+				if((jsb.getValue() + e1) <= jsb.getMaximum()-scrollDistance) {
+					isReadMode = true;
+					scrollDistance = 10;
+				}
+				else {
+					isReadMode = false;
+					scrollDistance = 300;
+				}
+				
+				if(isSenderMsg || (!isReadMode && tracker != jsb.getMaximum())) {
+					updateScrollbarPosition();
+					tracker = jsb.getMaximum();
+					
+				}
+				if(isSenderMsg)
+					isSenderMsg = false;
+			}
+		});
+		
 		int condition = JComponent.WHEN_FOCUSED;
 		InputMap inputMap = jTfMessageHere.getInputMap(condition);
 		ActionMap actionMap = jTfMessageHere.getActionMap();
@@ -180,7 +220,9 @@ public class ChatActivity {
 		    @Override
 		    public void actionPerformed(ActionEvent e) {
 		    	try {
+					tracker = jScrollPane.getVerticalScrollBar().getMaximum();
 					setSenderMessage();
+					isSenderMsg = true;
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -193,14 +235,21 @@ public class ChatActivity {
 	}
 	
 	private void setSenderMessage() throws IOException {
-		if(!jTfMessageHere.getText().equals("Type your message here") && jTfMessageHere.getText().trim().length() > 0) {
+		if(!jTfMessageHere.getText().equals("Type your message here") && jTfMessageHere.getText().trim().length() > 0 && jTfMessageHere.getText().trim().length() <= 300) {
 			//sending message to the server
 			request = new Request(Request.Type.MSG.ordinal(),clientModel.getClientID(),clientModel.getRoomId(),jTfMessageHere.getText());
 			ClientModel.objectOutputStream.writeObject(request);
 			ClientModel.objectOutputStream.flush();
 			//displaying on the user UI window
 			jLabelMessage = new JLabel();
-			String text = String.format("<html><div style=\"width:%dpx;\">%s</div></html>",150, jTfMessageHere.getText());
+			String temp;
+			if(jTfMessageHere.getText().trim().length() <= 3)
+				temp = "20px";
+			else if(jTfMessageHere.getText().trim().length() <= 51)
+				temp = "auto";
+			else
+				temp = "300px";
+			String text = String.format("<html><div><p style=\"width:%s;word-break: break-all;\">%s</p></div></html>", temp ,jTfMessageHere.getText());
 			jLabelMessage.setText(text);
 			jLabelMessage.setBorder(rightBubble);
 			rightBubbleConstraints.gridy = i;
@@ -208,7 +257,12 @@ public class ChatActivity {
 			jPanelChatWindow.revalidate();
 			jPanelChatWindow.repaint();
 			i++;
+			
 			clearTextMessage();
+		}
+		else {
+			UIManager.put("OptionPane.okButtonText", "OK");
+			JOptionPane.showMessageDialog(null, "The message length between 1-300 characters.", null, JOptionPane.ERROR_MESSAGE);
 		}
 	}
 	
@@ -221,7 +275,6 @@ public class ChatActivity {
 		jLabelMessage = new JLabel();
 		String text = String.format("<html><div style=\"width:%dpx;text-align:center;\">%s</div></html>",400, message);
 		jLabelMessage.setText(text);
-		//jLabelMessage.setBorder(new LineBorder(Config.colorPrimary,2));
 		centerConstraints.gridy = i;
 		jPanelChatWindow.add(jLabelMessage,centerConstraints);
 		jPanelChatWindow.revalidate();
@@ -231,10 +284,9 @@ public class ChatActivity {
 	
 	private void setReceiverMessage(String senderName, String message) {
 		jLabelMessage = new JLabel();
-		String text = String.format("<html><div style=\"width:%1$dpx;font-size:8px;text-align:right;\">%3$s</div><div style=\"width:%1$dpx;font-size:12px;font-weight:bold;font-family:serif;\">%2$s</div></html>", 150, message, senderName + "<br>");
+		String text = String.format("<html><div style=\"font-size:8px;text-align:right;\">%3$s</div><div style=\"width:%1$dpx;\">%2$s</div></html>", 150, message, senderName + "<br>");
 		jLabelMessage.setText(text);		
 		jLabelMessage.setBorder(leftBubble);
-		jLabelMessage.setFont(new Font("Serif",Font.BOLD,12));
 		leftBubbleConstraints.gridy = i;
 		jPanelChatWindow.add(jLabelMessage,leftBubbleConstraints);
 		jPanelChatWindow.revalidate();
@@ -273,9 +325,9 @@ public class ChatActivity {
 		
 		jScrollPane = new JScrollPane(jPanelChatWindow);
 		jScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		jScrollPane.setBounds(0, 0, 864, 560);
+		jScrollPane.setBounds(0, 0, 864, 493);
 		JPanel p1 = new JPanel(null);
-		p1.setPreferredSize(new Dimension(864,600));
+		p1.setPreferredSize(new Dimension(864,533));
 		p1.add(jScrollPane);
 		jFrame.add(BorderLayout.CENTER,p1);
 		
@@ -315,7 +367,7 @@ public class ChatActivity {
 					Message.println(response.getContents());
 					if(response.getContents().equals("sv_exit_successful")) {
 						isContinue = false;
-						
+						clientModel.setRoomId(-1);
 						SwingUtilities.invokeLater(new Runnable() {
 							   public void run() {
 								try {
@@ -330,6 +382,8 @@ public class ChatActivity {
 					}
 					else if(response.getId() == Response.Type.LOGOUT.ordinal()) {
 						isContinue = false;
+						clientModel.setRoomId(-1);
+						clientModel.setClientID(-1);
 						SwingUtilities.invokeLater(new Runnable() {
 						   public void run() {
 							try {
