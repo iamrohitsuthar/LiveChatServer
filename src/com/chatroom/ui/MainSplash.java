@@ -13,6 +13,7 @@ import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -21,6 +22,7 @@ import javax.swing.plaf.InsetsUIResource;
 
 import com.chatroom.client.ClientModel;
 import com.chatroom.configuration.Config;
+import com.chatroom.others.LogFileWriter;
 
 public class MainSplash {
 	private JLabel jLabel;
@@ -37,7 +39,6 @@ public class MainSplash {
 		
 		iconLogo = ImageIO.read(this.getClass().getResource("/logo.png"));
 
-		
 		jFrame.setContentPane(new JPanel() {
 			BufferedImage myImage = ImageIO.read(this.getClass().getResource("/background.png"));
 			public void paintComponent(Graphics g) {
@@ -59,8 +60,9 @@ public class MainSplash {
 				try {
 					jFrame.dispose();
 					new SignUpActivity(clientModel);
-				} catch (IOException e1) {
-					e1.printStackTrace();
+				} catch (IOException ex) {
+					ex.printStackTrace(new PrintWriter(Config.errors));
+					LogFileWriter.Log(Config.errors.toString());
 				}
 				
 			}
@@ -72,9 +74,9 @@ public class MainSplash {
 				try {
 					jFrame.dispose();
 					new SignInActivity(clientModel);
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+				} catch (IOException ex) {
+					ex.printStackTrace(new PrintWriter(Config.errors));
+					LogFileWriter.Log(Config.errors.toString());
 				}
 			}
 		});
@@ -128,16 +130,4 @@ public class MainSplash {
 		
 		ListeningEvents();
 	}
-	
-	public static void main(String args[]) throws IOException {
-		String h = "localhost";
-		int p = 8793;
-		ClientModel cm;
-		if( args.length == 0 )
-			cm = new ClientModel(h, p);
-		else
-			cm = new ClientModel(args[0], Integer.parseInt(args[1]));
-		new MainSplash(cm);
-	}	
 }
-

@@ -17,6 +17,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.PrintWriter;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -30,6 +32,7 @@ import com.chatroom.configuration.Config;
 import com.chatroom.models.Request;
 import com.chatroom.models.Response;
 import com.chatroom.others.Hash;
+import com.chatroom.others.LogFileWriter;
 import com.chatroom.others.Message;
 
 public class SignInActivity {
@@ -137,8 +140,8 @@ public class SignInActivity {
 					jFrame.dispose();
 					new SignUpActivity(clientModel);
 				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+					e1.printStackTrace(new PrintWriter(Config.errors));
+					LogFileWriter.Log(Config.errors.toString());
 				}
 			}
 		});
@@ -168,20 +171,18 @@ public class SignInActivity {
 			if( response.getId() == Response.Type.LOGIN.ordinal())
 			{
 				if(response.getSuccess()) {
-					Message.println("Login Successfull ... ");
 					clientModel.setClientID(Integer.parseInt(response.getContents()));
 					new MainMenuOptions(clientModel);
 					jFrame.dispose();
 				}
 				else {
 					JOptionPane.showMessageDialog(null, response.getContents(), null, JOptionPane.ERROR_MESSAGE);
-					Message.println(response.getContents());
 				}
 			}
 			
 		} catch (IOException | ClassNotFoundException e) {
-			// TODO Add log
-			e.printStackTrace();
+			e.printStackTrace(new PrintWriter(Config.errors));
+			LogFileWriter.Log(Config.errors.toString());
 		}
 	}
 	
@@ -269,4 +270,3 @@ public class SignInActivity {
 	}
 	
 }
-

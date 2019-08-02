@@ -16,6 +16,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.PrintWriter;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -29,6 +31,7 @@ import com.chatroom.configuration.Config;
 import com.chatroom.models.Request;
 import com.chatroom.models.Response;
 import com.chatroom.others.Hash;
+import com.chatroom.others.LogFileWriter;
 import com.chatroom.others.Message;
 
 public class SignUpActivity {
@@ -148,40 +151,46 @@ public class SignUpActivity {
 					jFrame.dispose();
 					new SignInActivity(clientModel);
 				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+					e1.printStackTrace(new PrintWriter(Config.errors));
+					LogFileWriter.Log(Config.errors.toString());
 				}
 			}
 		});
 	}
 	
 	private void signUp(String username, String password) {
-		String cont = username;
-		cont += "#";
-		cont += Hash.getHash(new String(password));
-		Request request = new Request(Request.Type.SIGN_UP.ordinal(),clientModel.getClientID(),clientModel.getRoomId(),cont);
-		try {
-			ClientModel.objectOutputStream.writeObject(request);
-			ClientModel.objectOutputStream.flush();
-			Response response = (Response) ClientModel.objectInputStream.readObject();
-			
-			if( response.getId() == Response.Type.SIGN_UP.ordinal())
-			{
-				if(response.getSuccess()) {
-					Message.println("Sign up Successfull ... ");
-					clientModel.setClientID(Integer.parseInt(response.getContents()));
-					new MainMenuOptions(clientModel);
-					jFrame.dispose();
+		if(username.equals("Enter Username") || username.length() <= 0) {
+			JOptionPane.showMessageDialog(null, "Enter username properly", null, JOptionPane.ERROR_MESSAGE);
+		}
+		else if(password.equals("Enter Password") || password.length() <= 0) {
+			JOptionPane.showMessageDialog(null, "Enter password properly", null, JOptionPane.ERROR_MESSAGE);
+		}
+		else {
+			String cont = username;
+			cont += "#";
+			cont += Hash.getHash(new String(password));
+			Request request = new Request(Request.Type.SIGN_UP.ordinal(),clientModel.getClientID(),clientModel.getRoomId(),cont);
+			try {
+				ClientModel.objectOutputStream.writeObject(request);
+				ClientModel.objectOutputStream.flush();
+				Response response = (Response) ClientModel.objectInputStream.readObject();
+				
+				if( response.getId() == Response.Type.SIGN_UP.ordinal())
+				{
+					if(response.getSuccess()) {
+						clientModel.setClientID(Integer.parseInt(response.getContents()));
+						new MainMenuOptions(clientModel);
+						jFrame.dispose();
+					}
+					else {
+						JOptionPane.showMessageDialog(null, response.getContents(), null, JOptionPane.ERROR_MESSAGE);
+					}
 				}
-				else {
-					JOptionPane.showMessageDialog(null, response.getContents(), null, JOptionPane.ERROR_MESSAGE);
-					Message.println(response.getContents());
-				}
+				
+			} catch (IOException | ClassNotFoundException e) {
+				e.printStackTrace(new PrintWriter(Config.errors));
+				LogFileWriter.Log(Config.errors.toString());
 			}
-			
-		} catch (IOException | ClassNotFoundException e) {
-			// TODO Add log
-			e.printStackTrace();
 		}
 	}
 	
@@ -270,4 +279,3 @@ public class SignUpActivity {
 		ListeningEvents();
 	}	
 }
-

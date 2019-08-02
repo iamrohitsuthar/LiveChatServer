@@ -10,10 +10,13 @@ import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.PrintWriter;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
@@ -23,6 +26,7 @@ import com.chatroom.client.ClientModel;
 import com.chatroom.configuration.Config;
 import com.chatroom.models.Request;
 import com.chatroom.models.Response;
+import com.chatroom.others.LogFileWriter;
 import com.chatroom.others.Message;
 
 public class ViewRoomsActivity {
@@ -64,13 +68,14 @@ public class ViewRoomsActivity {
 		}
 		catch( RuntimeException e)
 		{
-			e.printStackTrace();
+			e.printStackTrace(new PrintWriter(Config.errors));
+			LogFileWriter.Log(Config.errors.toString());
 			new MainMenuOptions(clientModel);
 			jFrame.dispose();
 		}
 	}
 	
-	private String[] getRooms() throws RuntimeException{
+	private String[] getRooms() {
 		String[] rooms = {};
 		Request request = new Request(Request.Type.VIEW_ROOMS.ordinal(),clientModel.getClientID(),clientModel.getRoomId(),"");
 		try {
@@ -80,52 +85,54 @@ public class ViewRoomsActivity {
 			Response response = (Response) ClientModel.objectInputStream.readObject();
 			if( response.getSuccess())
 			{
-				Message.println("Getting list of rooms...");
-				rooms = response.getContents().split(",");
+				rooms = response.getContents().split("\n");
 			}
 			else
 			{
-				Message.println(response.getContents());
 				JOptionPane.showMessageDialog(null,response.getContents(), null, JOptionPane.ERROR_MESSAGE);
 				throw new RuntimeException("no_rooms");
 			}
 			
 		} catch (IOException | ClassNotFoundException e) {
-			e.printStackTrace();
+			e.printStackTrace(new PrintWriter(Config.errors));
+			LogFileWriter.Log(Config.errors.toString());
 		}
 		
 		return rooms;
 	}
 
-	private void createAndJoinRoom(String rName, boolean create) throws Exception
+	private void createAndJoinRoom(String rName, boolean create)
 	{
-		if(create)
-			request = new Request(Request.Type.CREATE_ROOM.ordinal(),clientModel.getClientID(),clientModel.getRoomId(),rName);
-		else
-			request = new Request(Request.Type.JOIN_ROOM.ordinal(),clientModel.getClientID(),clientModel.getRoomId(),rName);
-		
-		ClientModel.objectOutputStream.writeObject(request);
-		ClientModel.objectOutputStream.flush();
-		Object obj =  ClientModel.objectInputStream.readObject();
-		if( obj.getClass() == Response.class )
-			response = (Response) obj;
-		else
-		{
-			throw new Exception("Object returned is not of type Response. but of " + obj.getClass().toString() );
-		}
-		if( response.getSuccess())
-		{
-				//connected();
-				Message.println(response.getContents()); //room created and joined successfully
+		try {
+			if(create)
+				request = new Request(Request.Type.CREATE_ROOM.ordinal(),clientModel.getClientID(),clientModel.getRoomId(),rName);
+			else
+				request = new Request(Request.Type.JOIN_ROOM.ordinal(),clientModel.getClientID(),clientModel.getRoomId(),rName);
+			
+			ClientModel.objectOutputStream.writeObject(request);
+			ClientModel.objectOutputStream.flush();
+			Object obj =  ClientModel.objectInputStream.readObject();
+			if( obj.getClass() == Response.class )
+				response = (Response) obj;
+			else
+			{
+				throw new Exception("Object returned is not of type Response. but of " + obj.getClass().toString() );
+			}
+			if( response.getSuccess())
+			{
 				int hashIndex = response.getContents().indexOf('#');
 				clientModel.setRoomId(Integer.parseInt(response.getContents().substring(hashIndex+1, response.getContents().indexOf(" ", hashIndex))));
 				new ChatActivity(clientModel);
 				jFrame.dispose();
+			}
+			else
+			{
+				JOptionPane.showMessageDialog(null, response.getContents(), null, JOptionPane.ERROR_MESSAGE);
+			}
 		}
-		else
-		{
-			JOptionPane.showMessageDialog(null, response.getContents(), null, JOptionPane.ERROR_MESSAGE);
-			Message.println(response.getContents());
+		catch(Exception e) {
+			e.printStackTrace(new PrintWriter(Config.errors));
+			LogFileWriter.Log(Config.errors.toString());
 		}
 	}
 	
@@ -136,44 +143,22 @@ public class ViewRoomsActivity {
 				try {
 					createAndJoinRoom(String.valueOf(jComboBox.getSelectedItem().toString().trim()), false);
 				} catch (Exception e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+					e1.printStackTrace(new PrintWriter(Config.errors));
+					LogFileWriter.Log(Config.errors.toString());
 				}
 			}
 		});
 	
-		jLabel_back_arrow_image.addMouseListener(new MouseListener() {
-			
-			@Override
-			public void mouseReleased(MouseEvent e) {
-				
-			}
-			
-			@Override
-			public void mousePressed(MouseEvent e) {
-				
-			}
-			
-			@Override
-			public void mouseExited(MouseEvent e) {
-				
-			}
-			
-			@Override
-			public void mouseEntered(MouseEvent e) {
-				
-			}
-			
-			@Override
+		jLabel_back_arrow_image.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
 				try {
 					new MainMenuOptions(clientModel);
 				} catch (IOException e1) {
-					e1.printStackTrace();
+					e1.printStackTrace(new PrintWriter(Config.errors));
+					LogFileWriter.Log(Config.errors.toString());
 				}
 				jFrame.dispose();
-				
-			}
+			};
 		});
 	
 	}
