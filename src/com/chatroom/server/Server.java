@@ -254,8 +254,8 @@ class RequestAnalyser extends Thread{
 		}
 		catch( Exception e)
 		{
-			e.printStackTrace(new PrintWriter(Server.errors));
-			LogFileWriter.Log(Server.errors.toString());
+			e.printStackTrace(new PrintWriter(Config.errors));
+			LogFileWriter.Log(Config.errors.toString());
 		}
 	}
 
@@ -303,8 +303,8 @@ class ResponseMaker  extends Thread{
 				responseHolder.objectOutputStream.flush();
 			}
 			catch (Exception e) {
-				e.printStackTrace(new PrintWriter(Server.errors));
-				LogFileWriter.Log(Server.errors.toString());
+				e.printStackTrace(new PrintWriter(Config.errors));
+				LogFileWriter.Log(Config.errors.toString());
 			}
 		}
 	}
@@ -409,8 +409,8 @@ class MessageHandler  extends Thread{
 									}
 									catch( Exception e )
 									{
-										e.printStackTrace(new PrintWriter(Server.errors));
-										LogFileWriter.Log("8900" + Server.errors.toString());
+										e.printStackTrace(new PrintWriter(Config.errors));
+										LogFileWriter.Log("8900" + Config.errors.toString());
 									}
 								}
 								else
@@ -427,8 +427,8 @@ class MessageHandler  extends Thread{
 									}
 									catch( Exception e )
 									{
-										e.printStackTrace(new PrintWriter(Server.errors));
-										LogFileWriter.Log("asdf" + Server.errors.toString());
+										e.printStackTrace(new PrintWriter(Config.errors));
+										LogFileWriter.Log("asdf" + Config.errors.toString());
 									}
 									finally
 									{
@@ -461,8 +461,8 @@ class MessageHandler  extends Thread{
 							
 						}
 						catch(Exception e) {
-							e.printStackTrace(new PrintWriter(Server.errors));
-							LogFileWriter.Log("abcd" + Server.errors.toString());
+							e.printStackTrace(new PrintWriter(Config.errors));
+							LogFileWriter.Log("abcd" + Config.errors.toString());
 						}
 				}
 				if(request.getContents().equals("sv_exit")) {
@@ -471,8 +471,8 @@ class MessageHandler  extends Thread{
 				}
 			}
 			catch (Exception e) {
-				e.printStackTrace(new PrintWriter(Server.errors));
-				LogFileWriter.Log("1234" + Server.errors.toString());
+				e.printStackTrace(new PrintWriter(Config.errors));
+				LogFileWriter.Log("1234" + Config.errors.toString());
 			}
 		}
 	}
@@ -516,7 +516,6 @@ public class Server {
 	static HashMap<Integer, Integer> messagesTrackHashmap;
 	static ServerOperations serverOperations;
 	static int roomIdGenerator = 0;
-	static StringWriter errors;
 	public Server(int port)
 	{
 		this.port = port;
@@ -537,20 +536,24 @@ public class Server {
 		messagesTrackQueue = new PriorityQueue<MessageTrackObject>(100,new MessagesTrackComparator());
 		serverOperations = new ServerOperations();
 		serverOperations.start();
-		errors = new StringWriter();
 		
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 			connection = DriverManager.getConnection(Config.DATABASE_URL+"/"+Config.DATABASE_NAME,Config.USER_NAME,Config.USER_PWD);
 		} catch (SQLException | ClassNotFoundException e) {
-			e.printStackTrace(new PrintWriter(Server.errors));
-			LogFileWriter.Log(Server.errors.toString());
+			e.printStackTrace(new PrintWriter(Config.errors));
+			LogFileWriter.Log(Config.errors.toString());
 		}
 	}
 	
 	@Override
-	protected void finalize() throws Throwable {
-		connection.close();
+	protected void finalize() {
+		try {
+			connection.close();
+		} catch (SQLException e) {
+			e.printStackTrace(new PrintWriter(Config.errors));
+			LogFileWriter.Log(Config.errors.toString());
+		}
 	}
 	
 	public static int getRoomId() {
@@ -575,9 +578,8 @@ public class Server {
 			return name;
 			
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace(new PrintWriter(Server.errors));
-			LogFileWriter.Log(Server.errors.toString());
+			e.printStackTrace(new PrintWriter(Config.errors));
+			LogFileWriter.Log(Config.errors.toString());
 			return null;
 		}
 		
@@ -602,8 +604,8 @@ public class Server {
 
 			}
 		} catch (IOException e) {
-			e.printStackTrace(new PrintWriter(Server.errors));
-			LogFileWriter.Log(Server.errors.toString());
+			e.printStackTrace(new PrintWriter(Config.errors));
+			LogFileWriter.Log(Config.errors.toString());
 		}
 	}
 
