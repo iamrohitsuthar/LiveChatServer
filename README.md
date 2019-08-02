@@ -93,3 +93,6 @@ If you'd like to request a new function, feel free to do so by opening an issue 
 #### Chat Activity
 <img src="http://iamrohitsuthar.000webhostapp.com/android/github/LiveChatServer/chat_activity.png" width="738">
 
+
+## License
+See [LICENSE](LICENSE)
