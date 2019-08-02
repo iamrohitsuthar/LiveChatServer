@@ -9,6 +9,7 @@ import java.io.StringWriter;
 import java.lang.Thread.State;
 import java.net.Socket;
 import java.util.Scanner;
+import com.chatroom.configuration.Config;
 import com.chatroom.models.Request;
 import com.chatroom.models.Response;
 import com.chatroom.others.Hash;
@@ -16,7 +17,7 @@ import com.chatroom.others.LogFileWriter;
 import com.chatroom.others.Message;
 
 public class Client {
-	private int clientID=-1;
+	private int clientID = -1;
 	private int roomId = -1;
 	private Scanner scanner = new Scanner(System.in);
 	private int choice;
@@ -29,13 +30,11 @@ public class Client {
 	private Request request = null;
 	private Response response = null;
 	private MessageListener messageListener;
-	public static StringWriter errors;
 	
 	public Client(String host, int port) {
 		this.host = host;
 		this.port = port;
 		messageListener = new MessageListener();
-		errors = new StringWriter();
 	}
 	
 	public void connect() {
@@ -45,8 +44,8 @@ public class Client {
 			objectInputStream = new ObjectInputStream(socket.getInputStream());
 			mainFunc();
 		} catch (IOException e) {
-			e.printStackTrace(new PrintWriter(errors));
-			LogFileWriter.Log(errors.toString());
+			e.printStackTrace(new PrintWriter(Config.errors));
+			LogFileWriter.Log(Config.errors.toString());
 		}
 	}
 	
@@ -78,14 +77,15 @@ public class Client {
 			}
 		}
 		catch (Exception e) {
-			e.printStackTrace(new PrintWriter(errors));
-			LogFileWriter.Log(errors.toString());
+			e.printStackTrace(new PrintWriter(Config.errors));
+			LogFileWriter.Log(Config.errors.toString());
 		}
 	}
 	
 	private void logOut() throws Exception{
 		cont = "";
 		request = new Request(Request.Type.LOGOUT.ordinal(),clientID,roomId,cont);
+		request.setIsConsole(true);
 		objectOutputStream.writeObject(request);
 		objectOutputStream.flush();
 		response = (Response) objectInputStream.readObject();
@@ -105,6 +105,7 @@ public class Client {
 		try {
 			cont = "";
 			request = new Request(Request.Type.VIEW_ROOMS.ordinal(),clientID,roomId,cont);
+			request.setIsConsole(true);
 			objectOutputStream.writeObject(request);
 			objectOutputStream.flush();
 			response = (Response) objectInputStream.readObject();
@@ -123,8 +124,8 @@ public class Client {
 			}
 		}
 		catch(Exception e) {
-			e.printStackTrace(new PrintWriter(errors));
-			LogFileWriter.Log(errors.toString());
+			e.printStackTrace(new PrintWriter(Config.errors));
+			LogFileWriter.Log(Config.errors.toString());
 		}
 	}
 
@@ -135,6 +136,7 @@ public class Client {
 		else
 			request = new Request(Request.Type.JOIN_ROOM.ordinal(),clientID,roomId,cont);
 		
+		request.setIsConsole(true);
 		objectOutputStream.writeObject(request);
 		objectOutputStream.flush();
 		Object obj =  objectInputStream.readObject();		
@@ -179,7 +181,8 @@ public class Client {
 				+ "For exiting the room type 'sv_exit' without quotes\n"
 				+ "For logging out type 'sv_logout' without quotes");
 		
-		request = new Request(Request.Type.MSG.ordinal(),clientID,roomId,"joined the chat");
+		request = new Request(Request.Type.STATUS_MSG.ordinal(),clientID,roomId,"joined the chat");
+		request.setIsConsole(true);
 		
 		objectOutputStream.writeObject(request);
 		objectOutputStream.flush();
@@ -187,6 +190,7 @@ public class Client {
 		while(true) {
 			cont = scanner.nextLine();
 			request = new Request(Request.Type.MSG.ordinal(),clientID,roomId,cont);
+			request.setIsConsole(true);
 			objectOutputStream.writeObject(request);
 			objectOutputStream.flush();
 			if( cont.equals("sv_exit") || cont.equals("sv_logout"))
@@ -213,7 +217,26 @@ public class Client {
 			while(true) {
 				try {
 					response = (Response) objectInputStream.readObject();
-					Message.println(response.getContents());
+					
+					if(response.getId() == Response.Type.LOGOUT.ordinal()) {
+						Message.println(response.getContents());
+					}
+					else if(response.getId() == Response.Type.STATUS_MSG.ordinal() && response.getContents().equals("sv_exit_successful")) {
+						Message.println(response.getContents());
+					}
+					else if(response.getId() == Response.Type.STATUS_MSG.ordinal() && response.getContents().contains("Wrong username ")) {
+						Message.println(response.getContents());
+					}
+					else if(response.getId() == Response.Type.MSG.ordinal() || response.getId() == Response.Type.STATUS_MSG.ordinal() || response.getId() == Response.Type.P_MSG.ordinal()){
+						String msg = response.getContents();
+						String name = msg.substring(0, msg.indexOf(" "));
+						msg = msg.substring(msg.indexOf(" ")+1);
+						if(response.getId() == Response.Type.P_MSG.ordinal())
+							Message.println("\n<" + name + "> (Personal Message): " + msg);
+						else	
+							Message.println("\n<" + name + ">: " + msg);
+					}
+					
 					if(response.getContents().equals("sv_exit_successful")) {
 						synchronized(this){
 							this.wait();
@@ -226,12 +249,12 @@ public class Client {
 					}
 					
 				} catch (ClassNotFoundException | IOException e) {
-					e.printStackTrace(new PrintWriter(errors));
-					LogFileWriter.Log(errors.toString());
+					e.printStackTrace(new PrintWriter(Config.errors));
+					LogFileWriter.Log(Config.errors.toString());
 					break;
 				} catch (InterruptedException e) {
-					e.printStackTrace(new PrintWriter(errors));
-					LogFileWriter.Log(errors.toString());
+					e.printStackTrace(new PrintWriter(Config.errors));
+					LogFileWriter.Log(Config.errors.toString());
 				}
 			}
 		}
@@ -249,6 +272,7 @@ public class Client {
 				char[] pwd = console.readPassword("Enter password: "); //take the password and separate it from user name by # delimiter
 				cont += Hash.getHash(new String(pwd));
 				request = new Request(Request.Type.SIGN_UP.ordinal(),clientID,roomId,cont);
+				request.setIsConsole(true);
 				Message.println("Signing Up ... ");
 			}
 			else if(choice == 2) {
@@ -258,6 +282,7 @@ public class Client {
 				char[] pwd = console.readPassword("Enter password: "); //take the password and separate it from user name by # delimiter
 				cont += Hash.getHash(new String(pwd));
 				request = new Request(Request.Type.LOGIN.ordinal(),clientID,roomId,cont);
+				request.setIsConsole(true);
 				Message.println("Logging In ... ");
 			}
 			else {
@@ -297,8 +322,8 @@ public class Client {
 
 		}
 		catch(Exception e) {
-			e.printStackTrace(new PrintWriter(errors));
-			LogFileWriter.Log(errors.toString());
+			e.printStackTrace(new PrintWriter(Config.errors));
+			LogFileWriter.Log(Config.errors.toString());
 		}
 	}
 }

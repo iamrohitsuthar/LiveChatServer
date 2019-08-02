@@ -8,12 +8,17 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Image;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.PrintWriter;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -22,7 +27,13 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.plaf.InsetsUIResource;
 
+import com.chatroom.client.ClientModel;
 import com.chatroom.configuration.Config;
+import com.chatroom.models.Request;
+import com.chatroom.models.Response;
+import com.chatroom.others.Hash;
+import com.chatroom.others.LogFileWriter;
+import com.chatroom.others.Message;
 
 public class SignInActivity {
 	private JLabel jLabel;
@@ -35,9 +46,10 @@ public class SignInActivity {
 	private JLabel jLabelSignup;
 	private JLabel jLabelSignIntitle;
 	private BufferedImage iconLogo;
+	private ClientModel clientModel;
 	
-	
-	public SignInActivity() throws IOException {
+	public SignInActivity(ClientModel cm) throws IOException {
+		clientModel = cm;
 		jFrame = new JFrame("CHATROOM Sign In");
 		
 		//scaling logo
@@ -90,7 +102,8 @@ public class SignInActivity {
 			
 			@Override
 			public void focusGained(FocusEvent e) {
-				jTvUsername.setText("");
+				if(jTvUsername.getText().equals("Enter Username"))
+					jTvUsername.setText("");
 				jTvUsername.setForeground(Color.black);	
 				jTvUsername.setBorder(compoundBorderAfterClick);
 			}
@@ -111,52 +124,66 @@ public class SignInActivity {
 			
 			@Override
 			public void focusGained(FocusEvent e) {
-				jTvpassword.setText("");
+				if(jTvpassword.getText().equals("Enter Password"))
+					jTvpassword.setText("");
 				jTvpassword.setEchoChar('\u2022');
 				jTvpassword.setForeground(Color.gray);
 				jTvpassword.setBorder(compoundBorderAfterClick);
 			}
 		});
 		
-		jLabelSignup.addMouseListener(new MouseListener() {
-			
-			@Override
-			public void mouseReleased(MouseEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void mousePressed(MouseEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void mouseExited(MouseEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void mouseEntered(MouseEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-			
+		jLabelSignup.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+				super.mouseClicked(e);
 				try {
 					jFrame.dispose();
-					new SignUpActivity();
+					new SignUpActivity(clientModel);
 				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+					e1.printStackTrace(new PrintWriter(Config.errors));
+					LogFileWriter.Log(Config.errors.toString());
 				}
-				
 			}
 		});
 		
+		jBtnSignIn.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String username = jTvUsername.getText();
+				String password = jTvpassword.getText();		
+				signIn(username,password);
+			}
+		});
+		
+	}
+	
+	private void signIn(String username, String password) {
+		String cont = username;
+		cont += "#";
+		cont += Hash.getHash(new String(password));
+		Request request = new Request(Request.Type.LOGIN.ordinal(),clientModel.getClientID(),clientModel.getRoomId(),cont);
+		try {
+			ClientModel.objectOutputStream.writeObject(request);
+			ClientModel.objectOutputStream.flush();
+			Response response = (Response) ClientModel.objectInputStream.readObject();
+			
+			if( response.getId() == Response.Type.LOGIN.ordinal())
+			{
+				if(response.getSuccess()) {
+					clientModel.setClientID(Integer.parseInt(response.getContents()));
+					new MainMenuOptions(clientModel);
+					jFrame.dispose();
+				}
+				else {
+					JOptionPane.showMessageDialog(null, response.getContents(), null, JOptionPane.ERROR_MESSAGE);
+				}
+			}
+			
+		} catch (IOException | ClassNotFoundException e) {
+			e.printStackTrace(new PrintWriter(Config.errors));
+			LogFileWriter.Log(Config.errors.toString());
+		}
 	}
 	
 	private void initializeAllWithProperties() {
@@ -242,8 +269,4 @@ public class SignInActivity {
 		ListeningEvents();
 	}
 	
-	public static void main(String args[]) throws IOException {
-		new SignInActivity();
-	}	
 }
-

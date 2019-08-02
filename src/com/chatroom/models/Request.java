@@ -2,13 +2,14 @@ package com.chatroom.models;
 import java.io.Serializable;
 public class Request implements Serializable{
 	public enum Type {
-		ACK,SIGN_UP, LOGIN, LOGOUT, CREATE_ROOM, JOIN_ROOM, VIEW_ROOMS, MSG;
+		ACK,SIGN_UP, LOGIN, LOGOUT, CREATE_ROOM, JOIN_ROOM, VIEW_ROOMS, MSG, STATUS_MSG;
 	}
 	
 	int id;
 	int clientId;
 	int roomId;
 	String contents = "";
+	boolean isConsoleRequest = false;
 	
 	public Request(int id, int clientId, int roomId, String contents) {
 		this.id = id;
@@ -34,7 +35,15 @@ public class Request implements Serializable{
 		return contents;
 	}
 	
+	public boolean getIsConsole() {
+		return isConsoleRequest;
+	}
+	
 	//setter methods
+	public void setIsConsole(boolean consoleRequest) {
+		this.isConsoleRequest = consoleRequest;
+	}
+	
 	public void setId(int id) {
 		this.id = id;
 	}

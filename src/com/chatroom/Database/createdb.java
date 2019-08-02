@@ -1,18 +1,14 @@
 package com.chatroom.Database;
 
 import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-
 import com.chatroom.configuration.Config;
 import com.chatroom.others.LogFileWriter;
-import com.chatroom.server.Server;
 
 
 public class createdb {
-	static StringWriter errors = new StringWriter();
 	public static void main(String[] args) {
 		Connection connection = null;
 		java.sql.Statement statement= null;
@@ -35,18 +31,18 @@ public class createdb {
 			statement.executeUpdate(Queries);
 			
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			LogFileWriter.Log(e.getMessage());
+			e.printStackTrace(new PrintWriter(Config.errors));
+			LogFileWriter.Log(Config.errors.toString());
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			LogFileWriter.Log(e.getMessage());
+			e.printStackTrace(new PrintWriter(Config.errors));
+			LogFileWriter.Log(Config.errors.toString());
 		}
 		finally {
 			try {
 				connection.close(); //close the database connection
 			} catch (SQLException e) {
-				e.printStackTrace(new PrintWriter(errors));
-				LogFileWriter.Log(errors.toString());
+				e.printStackTrace(new PrintWriter(Config.errors));
+				LogFileWriter.Log(Config.errors.toString());
 			}
 		}
 	}

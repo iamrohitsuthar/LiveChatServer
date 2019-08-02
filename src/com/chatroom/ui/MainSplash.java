@@ -13,13 +13,16 @@ import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import javax.swing.plaf.InsetsUIResource;
 
+import com.chatroom.client.ClientModel;
 import com.chatroom.configuration.Config;
+import com.chatroom.others.LogFileWriter;
 
 public class MainSplash {
 	private JLabel jLabel;
@@ -27,14 +30,15 @@ public class MainSplash {
 	private JButton jBtnSignUp;
 	private JButton jBtnSignIn;
 	private BufferedImage iconLogo;
+	private ClientModel clientModel;
 
 	@SuppressWarnings("serial")
-	public MainSplash() throws IOException {
+	public MainSplash(ClientModel cm) throws IOException {
+		clientModel = cm;
 		jFrame = new JFrame("CHATROOM");
 		
 		iconLogo = ImageIO.read(this.getClass().getResource("/logo.png"));
 
-		
 		jFrame.setContentPane(new JPanel() {
 			BufferedImage myImage = ImageIO.read(this.getClass().getResource("/background.png"));
 			public void paintComponent(Graphics g) {
@@ -47,7 +51,6 @@ public class MainSplash {
 		jBtnSignIn = new JButton("SIGN IN");
 		
 		initializeAllWithProperties();
-
 	}
 	
 	private void ListeningEvents() {
@@ -56,9 +59,10 @@ public class MainSplash {
 			public void actionPerformed(ActionEvent e) {
 				try {
 					jFrame.dispose();
-					new SignUpActivity();
-				} catch (IOException e1) {
-					e1.printStackTrace();
+					new SignUpActivity(clientModel);
+				} catch (IOException ex) {
+					ex.printStackTrace(new PrintWriter(Config.errors));
+					LogFileWriter.Log(Config.errors.toString());
 				}
 				
 			}
@@ -69,10 +73,10 @@ public class MainSplash {
 			public void actionPerformed(ActionEvent e) {
 				try {
 					jFrame.dispose();
-					new SignInActivity();
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+					new SignInActivity(clientModel);
+				} catch (IOException ex) {
+					ex.printStackTrace(new PrintWriter(Config.errors));
+					LogFileWriter.Log(Config.errors.toString());
 				}
 			}
 		});
@@ -126,9 +130,4 @@ public class MainSplash {
 		
 		ListeningEvents();
 	}
-	
-	public static void main(String args[]) throws IOException {
-		new MainSplash();
-	}	
 }
-

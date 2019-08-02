@@ -6,6 +6,7 @@ import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+import com.chatroom.configuration.Config;
 import com.chatroom.models.Request;
 import com.chatroom.others.LogFileWriter;
 import com.chatroom.others.Message;
@@ -40,8 +41,8 @@ public class ClientThread extends Thread{
 			}
 			
 		} catch (IOException | ClassNotFoundException e) {
-			e.printStackTrace(new PrintWriter(Server.errors));
-			LogFileWriter.Log(Server.errors.toString());
+			e.printStackTrace(new PrintWriter(Config.errors));
+			LogFileWriter.Log(Config.errors.toString());
 			if( e.getClass() == java.io.EOFException.class )
 			{
 				// if client exited the terminal itself
@@ -53,6 +54,7 @@ public class ClientThread extends Thread{
 				else {
 					this.request.setContents("");
 					this.request.setId(Request.Type.LOGOUT.ordinal());
+					this.request.setRoomId(-1);
 					Server.requestqueue.add(this);
 				}
 				

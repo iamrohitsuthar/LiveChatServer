@@ -14,6 +14,8 @@ public class ServerOperations extends Thread {
 		while(true) {
 			Message.println("1. For Messages logs");
 			Message.println("2. Server Shutdown");
+			Message.println("3. View All");
+			
 			input = scanner.nextInt();
 			if(input == 1) {
 				Server.messagesTrackQueue.clear();
@@ -29,6 +31,17 @@ public class ServerOperations extends Thread {
 			else if(input == 2){
 				//stops the server
 				Server.shutdown();
+			}
+			else if(input == 3) {
+				Message.println("Request Queue: "+ Server.requestqueue.size());
+				Message.println("responseMakerQueue: "+ Server.responseMakerQueue.size());
+				Message.println("messagequeue "+ Server.messagequeue.size());
+				Message.println("listOfRooms: "+ Server.listOfRooms.size());
+				Message.println("roomsHolder: "+ Server.roomsHolder.size());
+				Message.println("clientHolder: "+ Server.clientHolder.size());
+				Message.println("messagesTrackQueue: "+ Server.messagesTrackQueue.size());
+				Message.println("messagesTrackHashmap: "+ Server.messagesTrackHashmap.size());
+				//Message.println("Active thread: " + ClientThread.activeCount());
 			}
 		}
 	}

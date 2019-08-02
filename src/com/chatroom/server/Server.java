@@ -175,7 +175,6 @@ class RequestAnalyser extends Thread{
 							break;
 					case 5:
 							//join room
-						
 							String roomName1 = request.getContents();
 							int clientId = request.getClientId();
 							int roomId1 = -1;
@@ -236,6 +235,17 @@ class RequestAnalyser extends Thread{
 								}
 							}
 							break;
+					case 8:
+							if(request.getContents().equals(" ") || request.getContents().equals(""))
+								break;
+							Server.messagequeue.add(request);
+							if( Server.messageHandler.getState() == State.WAITING )
+							{
+								synchronized (Server.messageHandler) {
+									Server.messageHandler.notify();
+								}
+							}
+							break;
 						
 					default:
 						Message.println("Invalid");
@@ -244,15 +254,14 @@ class RequestAnalyser extends Thread{
 		}
 		catch( Exception e)
 		{
-			e.printStackTrace(new PrintWriter(Server.errors));
-			LogFileWriter.Log(Server.errors.toString());
+			e.printStackTrace(new PrintWriter(Config.errors));
+			LogFileWriter.Log(Config.errors.toString());
 		}
 	}
 
-	public static void logout(ClientThread clientThread, Request request,int temp) {
+	public static void logout(ClientThread clientThread, Request request, int temp) {
 		Response response = new Response( Response.Type.LOGOUT.ordinal() , true, "Logout Succesfully");
 		Server.responseMakerQueue.add(new ResponseHolder(response, clientThread.objectOutputStream));
-		
 		if(temp == 1) {
 			if(request.getRoomId() != -1)
 				Server.roomsHolder.get(request.getRoomId()).remove(request.getClientId());
@@ -294,8 +303,8 @@ class ResponseMaker  extends Thread{
 				responseHolder.objectOutputStream.flush();
 			}
 			catch (Exception e) {
-				e.printStackTrace(new PrintWriter(Server.errors));
-				LogFileWriter.Log(Server.errors.toString());
+				e.printStackTrace(new PrintWriter(Config.errors));
+				LogFileWriter.Log(Config.errors.toString());
 			}
 		}
 	}
@@ -355,10 +364,13 @@ class MessageHandler  extends Thread{
 					}
 					if(recieverId != -1)
 					{
-						msg = "\n<"+sender+"> ( PersonalMessage ): "+request.getContents().substring(request.getContents().indexOf(" "));
+						if(recieverId == request.getClientId())
+							continue;
+					
 						ClientThread ct =  Server.clientHolder.get(recieverId); //gives the client thread object
-						ObjectOutputStream oos = ct.objectOutputStream;
-						Response res = new Response(Response.Type.MSG.ordinal(),true,msg);
+						ObjectOutputStream oos = ct.objectOutputStream;					
+						msg = sender + " " +request.getContents().substring(request.getContents().indexOf(" "));
+						Response res = new Response(Response.Type.P_MSG.ordinal(),true,msg);
 						oos.writeObject(res);
 						oos.flush();
 						continue;
@@ -366,10 +378,11 @@ class MessageHandler  extends Thread{
 					else
 					{
 						// user name wrong
-						msg = "\n<server>: Wrong username " + reciever;
 						ClientThread ct =  Server.clientHolder.get(request.getClientId()); //gives the client thread object
 						ObjectOutputStream oos = ct.objectOutputStream;
-						Response res = new Response(Response.Type.MSG.ordinal(),true,msg);
+						Response res = null;
+						msg = "Wrong username " + reciever;
+						res = new Response(Response.Type.STATUS_MSG.ordinal(),true,msg);
 						oos.writeObject(res);
 						oos.flush();
 						continue;
@@ -385,31 +398,40 @@ class MessageHandler  extends Thread{
 						try {
 							if(request.getContents().equals("sv_exit") || request.getContents().equals("sv_logout"))
 							{
-								msg = "\n" + sender + " has left the chat\n";
+								msg = sender + " has left the chat\n";
 								if(id != request.getClientId())
 								{
 									ClientThread ct =  Server.clientHolder.get(id); //gives the client thread object
-									ObjectOutputStream oos = ct.objectOutputStream;
-									Response res = new Response(Response.Type.MSG.ordinal(),true,msg);
-									oos.writeObject(res);
-									oos.flush();
+									try
+									{
+										ObjectOutputStream oos = ct.objectOutputStream;
+										Response res = new Response(Response.Type.STATUS_MSG.ordinal(),true,msg);
+										oos.writeObject(res);
+										oos.flush();
+									}
+									catch( Exception e )
+									{
+										e.printStackTrace(new PrintWriter(Config.errors));
+										LogFileWriter.Log(Config.errors.toString());
+									}
 								}
 								else
 								{
+									
 									ClientThread ct =  Server.clientHolder.get(id); //gives the client thread object
 									try
 									{
 										if(request.getContents().equals("sv_exit")) {
 											ObjectOutputStream oos = ct.objectOutputStream;
-											Response res = new Response(Response.Type.MSG.ordinal(),true,"sv_exit_successful");
+											Response res = new Response(Response.Type.STATUS_MSG.ordinal(),true,"sv_exit_successful");
 											oos.writeObject(res);
 											oos.flush();
 										}
 									}
 									catch( Exception e )
 									{
-										e.printStackTrace(new PrintWriter(Server.errors));
-										LogFileWriter.Log(Server.errors.toString());
+										e.printStackTrace(new PrintWriter(Config.errors));
+										LogFileWriter.Log(Config.errors.toString());
 									}
 									finally
 									{
@@ -422,18 +444,33 @@ class MessageHandler  extends Thread{
 							}
 							else
 							{
-								msg = "\n<"+sender+">: "+request.getContents();
-								ClientThread ct =  Server.clientHolder.get(id); //gives the client thread object
-								ObjectOutputStream oos = ct.objectOutputStream;
-								Response res = new Response(Response.Type.MSG.ordinal(),true,msg);
-								oos.writeObject(res);
-								oos.flush();
+								if(((request.getId() == Request.Type.STATUS_MSG.ordinal()) || id != request.getClientId()) || request.getIsConsole()) {
+									if(request.getIsConsole()) {
+										msg = sender + " " + request.getContents();
+									}
+									else {
+										if(id == request.getClientId()) 
+											msg = sender + " " + request.getContents() + " Active Users: "+ set.size();
+										else	
+											msg = sender + " " + request.getContents();
+									}
+									ClientThread ct =  Server.clientHolder.get(id); //gives the client thread object
+									ObjectOutputStream oos = ct.objectOutputStream;
+									Response res = null;
+									if(request.getId() == Request.Type.STATUS_MSG.ordinal())
+										res = new Response(Response.Type.STATUS_MSG.ordinal(),true,msg);
+									else 
+										res = new Response(Response.Type.MSG.ordinal(),true,msg);
+									oos.writeObject(res);
+									oos.flush();
+								}
+								
 							}
 							
 						}
 						catch(Exception e) {
-							e.printStackTrace(new PrintWriter(Server.errors));
-							LogFileWriter.Log(Server.errors.toString());
+							e.printStackTrace(new PrintWriter(Config.errors));
+							LogFileWriter.Log(Config.errors.toString());
 						}
 				}
 				if(request.getContents().equals("sv_exit")) {
@@ -446,8 +483,8 @@ class MessageHandler  extends Thread{
 				}
 			}
 			catch (Exception e) {
-				e.printStackTrace(new PrintWriter(Server.errors));
-				LogFileWriter.Log(Server.errors.toString());
+				e.printStackTrace(new PrintWriter(Config.errors));
+				LogFileWriter.Log(Config.errors.toString());
 			}
 		}
 	}
@@ -491,7 +528,6 @@ public class Server {
 	static HashMap<Integer, Integer> messagesTrackHashmap;
 	static ServerOperations serverOperations;
 	static int roomIdGenerator = 0;
-	static StringWriter errors;
 	public Server(int port)
 	{
 		this.port = port;
@@ -512,20 +548,24 @@ public class Server {
 		messagesTrackQueue = new PriorityQueue<MessageTrackObject>(100,new MessagesTrackComparator());
 		serverOperations = new ServerOperations();
 		serverOperations.start();
-		errors = new StringWriter();
 		
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 			connection = DriverManager.getConnection(Config.DATABASE_URL+"/"+Config.DATABASE_NAME,Config.USER_NAME,Config.USER_PWD);
 		} catch (SQLException | ClassNotFoundException e) {
-			e.printStackTrace(new PrintWriter(Server.errors));
-			LogFileWriter.Log(Server.errors.toString());
+			e.printStackTrace(new PrintWriter(Config.errors));
+			LogFileWriter.Log(Config.errors.toString());
 		}
 	}
 	
 	@Override
-	protected void finalize() throws Throwable {
-		connection.close();
+	protected void finalize() {
+		try {
+			connection.close();
+		} catch (SQLException e) {
+			e.printStackTrace(new PrintWriter(Config.errors));
+			LogFileWriter.Log(Config.errors.toString());
+		}
 	}
 	
 	public static int getRoomId() {
@@ -550,9 +590,8 @@ public class Server {
 			return name;
 			
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace(new PrintWriter(Server.errors));
-			LogFileWriter.Log(Server.errors.toString());
+			e.printStackTrace(new PrintWriter(Config.errors));
+			LogFileWriter.Log(Config.errors.toString());
 			return null;
 		}
 		
@@ -577,8 +616,8 @@ public class Server {
 
 			}
 		} catch (IOException e) {
-			e.printStackTrace(new PrintWriter(Server.errors));
-			LogFileWriter.Log(Server.errors.toString());
+			e.printStackTrace(new PrintWriter(Config.errors));
+			LogFileWriter.Log(Config.errors.toString());
 		}
 	}
 

@@ -5,20 +5,24 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.PrintWriter;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import javax.swing.plaf.InsetsUIResource;
-import javax.swing.plaf.OptionPaneUI;
 
+import com.chatroom.client.ClientModel;
 import com.chatroom.configuration.Config;
+import com.chatroom.models.Request;
+import com.chatroom.models.Response;
+import com.chatroom.others.LogFileWriter;
+import com.chatroom.others.Message;
 
 public class MainMenuOptions {
 	private JLabel jLabel;
@@ -28,10 +32,14 @@ public class MainMenuOptions {
 	private JButton jBtnJoinRoom;
 	private JButton jBtnViewRooms;
 	private JButton jBtnLogout;
-	private BufferedImage iconLogo;	
+	private BufferedImage iconLogo;
+	private ClientModel clientModel;
+	private Request request;
+	private Response response;
 
 	@SuppressWarnings("serial")
-	public MainMenuOptions() throws IOException {
+	public MainMenuOptions(ClientModel cm) throws IOException {
+		clientModel = cm;
 		jFrame = new JFrame("CHATROOM");
 		
 		iconLogo = ImageIO.read(this.getClass().getResource("/logo.png"));
@@ -55,6 +63,30 @@ public class MainMenuOptions {
 
 	}
 	
+	private void logOut() {
+		try {
+			request = new Request(Request.Type.LOGOUT.ordinal(),clientModel.getClientID(),clientModel.getRoomId(),"");
+			ClientModel.objectOutputStream.writeObject(request);
+			ClientModel.objectOutputStream.flush();
+			response = (Response) ClientModel.objectInputStream.readObject();
+			if( response.getSuccess())
+			{
+				clientModel.setRoomId(-1);
+				clientModel.setClientID(-1);
+				new SignInActivity(clientModel);
+				jFrame.dispose();
+			}
+			else
+			{
+				JOptionPane.showMessageDialog(null, response.getContents(), null, JOptionPane.ERROR_MESSAGE);
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace(new PrintWriter(Config.errors));
+			LogFileWriter.Log(Config.errors.toString());
+		}
+	}
+	
 	private void ListeningEvents() {
 		jBtnCreateRoom.addActionListener(new ActionListener() {	
 			@Override
@@ -66,21 +98,20 @@ public class MainMenuOptions {
 		jBtnJoinRoom.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				//TODO: add join room code
 				displayAlertDialog(2);
 			}
 		});
+		
 		jBtnViewRooms.addActionListener(new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
-				jFrame.dispose();
 				try {
-					new ViewRoomsActivity();
+					new ViewRoomsActivity(clientModel);
+					jFrame.dispose();
 				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+					e1.printStackTrace(new PrintWriter(Config.errors));
+					LogFileWriter.Log(Config.errors.toString());
 				}
 				
 			}
@@ -90,13 +121,11 @@ public class MainMenuOptions {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
-					jFrame.dispose();
-					new SignInActivity();
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+					logOut();
+				} catch (Exception e1) {
+					e1.printStackTrace(new PrintWriter(Config.errors));
+					LogFileWriter.Log(Config.errors.toString());
 				}
-				
 			}
 		});
 	}
@@ -181,6 +210,42 @@ public class MainMenuOptions {
 		ListeningEvents();
 	}
 	
+	private void createAndJoinRoom(String rName, boolean create)
+	{
+		try {
+			if(create)
+				request = new Request(Request.Type.CREATE_ROOM.ordinal(),clientModel.getClientID(),clientModel.getRoomId(),rName);
+			else
+				request = new Request(Request.Type.JOIN_ROOM.ordinal(),clientModel.getClientID(),clientModel.getRoomId(),rName);
+			
+			ClientModel.objectOutputStream.writeObject(request);
+			ClientModel.objectOutputStream.flush();
+			Object obj =  ClientModel.objectInputStream.readObject();
+			if( obj.getClass() == Response.class )
+				response = (Response) obj;
+			else
+			{
+				throw new Exception("Object returned is not of type Response. but of " + obj.getClass().toString() );
+			}
+			if( response.getSuccess())
+			{
+				int hashIndex = response.getContents().indexOf('#');
+				clientModel.setRoomId(Integer.parseInt(response.getContents().substring(hashIndex+1, response.getContents().indexOf(" ", hashIndex))));
+				new ChatActivity(clientModel);
+				jFrame.dispose();
+			}
+			else
+			{
+				UIManager.put("OptionPane.okButtonText", "OK");
+				JOptionPane.showMessageDialog(null, response.getContents(), null, JOptionPane.ERROR_MESSAGE);
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace(new PrintWriter(Config.errors));
+			LogFileWriter.Log(Config.errors.toString());
+		}
+	}
+	
 	private void displayAlertDialog(int which) {
 		JPanel jPanel = new JPanel();
 		jPanel.setSize(new Dimension(200, 64));
@@ -198,11 +263,19 @@ public class MainMenuOptions {
 		else
 			UIManager.put("OptionPane.okButtonText", "Join Room");
 		
-		JOptionPane.showMessageDialog(null, jPanel, "Enter Room name",JOptionPane.PLAIN_MESSAGE);
+		int choice = JOptionPane.showOptionDialog(null, jPanel, "Enter Room Name", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null);
+		if(choice == JOptionPane.OK_OPTION) {
+			try {
+				if(which == 1)
+					createAndJoinRoom(jTextField.getText().toString(), true);
+				else
+					createAndJoinRoom(jTextField.getText().toString(), false);
+			}
+			catch(Exception e) {
+				e.printStackTrace(new PrintWriter(Config.errors));
+				LogFileWriter.Log(Config.errors.toString());
+			}
+		}
 	}
-	
-	public static void main(String args[]) throws IOException {
-		new MainMenuOptions();
-	}	
 }
 
