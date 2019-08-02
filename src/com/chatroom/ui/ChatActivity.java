@@ -3,7 +3,6 @@ package com.chatroom.ui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -19,6 +18,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.PrintWriter;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -27,13 +27,14 @@ import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
+
 import com.chatroom.client.ClientModel;
 import com.chatroom.configuration.Config;
 import com.chatroom.models.Request;
 import com.chatroom.models.Response;
+import com.chatroom.others.LogFileWriter;
 import com.chatroom.others.Message;
 import com.chatroom.others.TextBubbleBorder;
-import com.mysql.jdbc.Buffer;
 
 public class ChatActivity {
 	private JFrame jFrame;
@@ -145,14 +146,9 @@ public class ChatActivity {
 		jBtnSend.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				try {
-					tracker = jScrollPane.getVerticalScrollBar().getMaximum();
-					setSenderMessage();
-					isSenderMsg = true;
-
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				}
+				tracker = jScrollPane.getVerticalScrollBar().getMaximum();
+				setSenderMessage();
+				isSenderMsg = true;
 			}
 		});
 		
@@ -165,7 +161,8 @@ public class ChatActivity {
 					ClientModel.objectOutputStream.writeObject(request);
 					ClientModel.objectOutputStream.flush();
 				} catch (IOException e1) {
-					e1.printStackTrace();
+					e1.printStackTrace(new PrintWriter(Config.errors));
+					LogFileWriter.Log(Config.errors.toString());
 				}
 			}
 		});
@@ -179,7 +176,8 @@ public class ChatActivity {
 					ClientModel.objectOutputStream.writeObject(request);
 					ClientModel.objectOutputStream.flush();
 				} catch (IOException e1) {
-					e1.printStackTrace();
+					e1.printStackTrace(new PrintWriter(Config.errors));
+					LogFileWriter.Log(Config.errors.toString());
 				}
 			}
 		});
@@ -219,14 +217,9 @@ public class ChatActivity {
 		actionMap.put(enterKey.toString(), new AbstractAction() {
 		    @Override
 		    public void actionPerformed(ActionEvent e) {
-		    	try {
-					tracker = jScrollPane.getVerticalScrollBar().getMaximum();
-					setSenderMessage();
-					isSenderMsg = true;
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
+		    	tracker = jScrollPane.getVerticalScrollBar().getMaximum();
+				setSenderMessage();
+				isSenderMsg = true;
 		    	jTfMessageHere.setForeground(Color.gray);
 				jTfMessageHere.setText("Type your message here");
 				jBtnSend.requestFocus();
@@ -234,40 +227,48 @@ public class ChatActivity {
 		});
 	}
 	
-	private void setSenderMessage() throws IOException {
-		if(!jTfMessageHere.getText().equals("Type your message here") && jTfMessageHere.getText().trim().length() > 0 && jTfMessageHere.getText().trim().length() <= 300) {
-			//sending message to the server
-			request = new Request(Request.Type.MSG.ordinal(),clientModel.getClientID(),clientModel.getRoomId(),jTfMessageHere.getText());
-			ClientModel.objectOutputStream.writeObject(request);
-			ClientModel.objectOutputStream.flush();
-			//displaying on the user UI window
-			jLabelMessage = new JLabel();
-			String temp;
-			if(jTfMessageHere.getText().trim().length() <= 3)
-				temp = "20px";
-			else if(jTfMessageHere.getText().trim().length() <= 51)
-				temp = "auto";
-			else
-				temp = "300px";
-			String text = String.format("<html><div><p style=\"width:%s;word-break: break-all;\">%s</p></div></html>", temp ,jTfMessageHere.getText());
-			jLabelMessage.setText(text);
-			jLabelMessage.setBorder(rightBubble);
-			rightBubbleConstraints.gridy = i;
-			jPanelChatWindow.add(jLabelMessage,rightBubbleConstraints);
-			jPanelChatWindow.revalidate();
-			jPanelChatWindow.repaint();
-			i++;
-			clearTextMessage();
+	private void setSenderMessage() {
+		try {
+			if(!jTfMessageHere.getText().equals("Type your message here") && jTfMessageHere.getText().trim().length() > 0 && jTfMessageHere.getText().trim().length() <= 300) {
+				//sending message to the server
+				request = new Request(Request.Type.MSG.ordinal(),clientModel.getClientID(),clientModel.getRoomId(),jTfMessageHere.getText());
+				ClientModel.objectOutputStream.writeObject(request);
+				ClientModel.objectOutputStream.flush();
+				//displaying on the user UI window
+				jLabelMessage = new JLabel();
+				String temp;
+				if(jTfMessageHere.getText().trim().length() <= 3)
+					temp = "20px";
+				else if(jTfMessageHere.getText().trim().length() <= 51)
+					temp = "auto";
+				else
+					temp = "300px";
+				String text = String.format("<html><div><p style=\"width:%s;word-break: break-all;\">%s</p></div></html>", temp ,jTfMessageHere.getText());
+				jLabelMessage.setText(text);
+				jLabelMessage.setBorder(rightBubble);
+				rightBubbleConstraints.gridy = i;
+				jPanelChatWindow.add(jLabelMessage,rightBubbleConstraints);
+				jPanelChatWindow.revalidate();
+				jPanelChatWindow.repaint();
+				i++;
+				clearTextMessage();
+			}
+			else {
+				UIManager.put("OptionPane.okButtonText", "OK");
+				JOptionPane.showMessageDialog(null, "The message length between 1-300 characters.", null, JOptionPane.ERROR_MESSAGE);
+			}
 		}
-		else {
-			UIManager.put("OptionPane.okButtonText", "OK");
-			JOptionPane.showMessageDialog(null, "The message length between 1-300 characters.", null, JOptionPane.ERROR_MESSAGE);
+		catch(IOException e) {
+			e.printStackTrace(new PrintWriter(Config.errors));
+			LogFileWriter.Log(Config.errors.toString());
 		}
+		
 	}
 	
 	private void clearTextMessage() {
 		jTfMessageHere.setForeground(Color.gray);
 		jTfMessageHere.setText("Type your message here");
+		jBtnSend.requestFocus();
 	}
 	
 	private void displayStatusMessages(String message) {
@@ -370,8 +371,6 @@ public class ChatActivity {
 						msg = msg.substring(msg.indexOf(" ")+1);
 						setReceiverMessage(name,msg);
 					}
-					
-					Message.println(response.getContents());
 					if(response.getContents().equals("sv_exit_successful")) {
 						isContinue = false;
 						clientModel.setRoomId(-1);
@@ -380,8 +379,8 @@ public class ChatActivity {
 								try {
 									new MainMenuOptions(clientModel);
 								} catch (IOException e) {
-									Message.println("error");
-									e.printStackTrace();
+									e.printStackTrace(new PrintWriter(Config.errors));
+									LogFileWriter.Log(Config.errors.toString());
 								}
 								   jFrame.dispose();
 							   }
@@ -396,8 +395,8 @@ public class ChatActivity {
 							try {
 								new SignInActivity(clientModel);
 							} catch (IOException e) {
-								Message.println("error");
-								e.printStackTrace();
+								e.printStackTrace(new PrintWriter(Config.errors));
+								LogFileWriter.Log(Config.errors.toString());
 							}
 							   jFrame.dispose();
 						   }
@@ -405,8 +404,8 @@ public class ChatActivity {
 				}
 					
 				} catch (ClassNotFoundException | IOException e) {
-//					e.printStackTrace(new PrintWriter(errors));
-//					LogFileWriter.Log(errors.toString());
+					e.printStackTrace(new PrintWriter(Config.errors));
+					LogFileWriter.Log(Config.errors.toString());
 					break;
 				}
 			}
