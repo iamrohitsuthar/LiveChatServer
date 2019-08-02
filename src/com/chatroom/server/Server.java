@@ -145,7 +145,7 @@ class RequestAnalyser extends Thread{
 						break;
 					case 3:
 							//for logout
-							logout(clientThread,request);
+							logout(clientThread,request,1);
 							break;
 					case 4:
 							//create room
@@ -249,14 +249,15 @@ class RequestAnalyser extends Thread{
 		}
 	}
 
-	public static void logout(ClientThread clientThread, Request request) {
+	public static void logout(ClientThread clientThread, Request request,int temp) {
 		Response response = new Response( Response.Type.LOGOUT.ordinal() , true, "Logout Succesfully");
 		Server.responseMakerQueue.add(new ResponseHolder(response, clientThread.objectOutputStream));
 		
-		if(request.getRoomId() != -1)
-			Server.roomsHolder.get(request.getRoomId()).remove(request.getClientId());
-		
-		Server.clientHolder.remove(request.getClientId());
+		if(temp == 1) {
+			if(request.getRoomId() != -1)
+				Server.roomsHolder.get(request.getRoomId()).remove(request.getClientId());
+			Server.clientHolder.remove(request.getClientId());
+		}
 		
 		if( Server.responseMaker.getState() == State.WAITING )
 		{
@@ -414,7 +415,7 @@ class MessageHandler  extends Thread{
 									{
 										if( request.getContents().equals("sv_logout") )
 										{
-											RequestAnalyser.logout(ct,request);
+											RequestAnalyser.logout(ct,request,0);
 										}
 									}
 								}
@@ -438,6 +439,10 @@ class MessageHandler  extends Thread{
 				if(request.getContents().equals("sv_exit")) {
 					Set<Integer> set1 = Server.roomsHolder.get(request.getRoomId());
 					set1.remove(request.getClientId());
+				}
+				else if(request.getContents().equals("sv_logout")) {
+					Server.roomsHolder.get(request.getRoomId()).remove(request.getClientId());
+					Server.clientHolder.remove(request.getClientId());
 				}
 			}
 			catch (Exception e) {
