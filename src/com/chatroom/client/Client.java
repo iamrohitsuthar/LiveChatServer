@@ -1,7 +1,6 @@
 package com.chatroom.client;
 
 import java.io.Console;
-import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -10,13 +9,11 @@ import java.io.StringWriter;
 import java.lang.Thread.State;
 import java.net.Socket;
 import java.util.Scanner;
-
 import com.chatroom.models.Request;
 import com.chatroom.models.Response;
 import com.chatroom.others.Hash;
 import com.chatroom.others.LogFileWriter;
 import com.chatroom.others.Message;
-import com.chatroom.server.Server;
 
 public class Client {
 	private int clientID=-1;
@@ -32,30 +29,13 @@ public class Client {
 	private Request request = null;
 	private Response response = null;
 	private MessageListener messageListener;
-	private static StringWriter errors;
+	public static StringWriter errors;
 	
 	public Client(String host, int port) {
 		this.host = host;
 		this.port = port;
 		messageListener = new MessageListener();
 		errors = new StringWriter();
-		
-		//create the log file if it is not present
-		String path = System.getProperty("user.home");
-		path += "/CHATROOM";
-		File file = new File(path);
-		if(!file.exists())
-			file.mkdir();
-				
-		File f = new File(System.getProperty("user.home")+"/CHATROOM/LOGS.txt");
-		if(!f.exists()) {
-			try {
-				f.createNewFile();
-			} catch (IOException e) {
-				e.printStackTrace(new PrintWriter(errors));
-				LogFileWriter.Log(errors.toString());
-			}
-		}
 	}
 	
 	public void connect() {
