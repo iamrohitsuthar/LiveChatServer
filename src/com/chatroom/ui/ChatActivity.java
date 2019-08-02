@@ -330,10 +330,11 @@ public class ChatActivity {
 		//jFrame.add(BorderLayout.CENTER,jPanelChatWindow);
 		
 		jScrollPane = new JScrollPane(jPanelChatWindow);
+		jScrollPane.setBorder(BorderFactory.createEmptyBorder());
 		jScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		jScrollPane.setBounds(0, 0, 864, 493);
+		jScrollPane.setBounds(0, 0, 864, 490);
 		JPanel p1 = new JPanel(null);
-		p1.setPreferredSize(new Dimension(864,533));
+		p1.setPreferredSize(new Dimension(864,530));
 		p1.add(jScrollPane);
 		jFrame.add(BorderLayout.CENTER,p1);
 		
