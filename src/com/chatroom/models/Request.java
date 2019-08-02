@@ -9,6 +9,7 @@ public class Request implements Serializable{
 	int clientId;
 	int roomId;
 	String contents = "";
+	boolean isConsoleRequest = false;
 	
 	public Request(int id, int clientId, int roomId, String contents) {
 		this.id = id;
@@ -34,7 +35,15 @@ public class Request implements Serializable{
 		return contents;
 	}
 	
+	public boolean getIsConsole() {
+		return isConsoleRequest;
+	}
+	
 	//setter methods
+	public void setIsConsole(boolean consoleRequest) {
+		this.isConsoleRequest = consoleRequest;
+	}
+	
 	public void setId(int id) {
 		this.id = id;
 	}
