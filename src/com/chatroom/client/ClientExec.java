@@ -8,10 +8,7 @@ import com.chatroom.others.LogFileWriter;
 import com.chatroom.ui.MainSplash;
 
 public class ClientExec {
-	public static void main(String[] args) {
-		//Client client = new Client(args[0],Integer.parseInt(args[1]));
-		//client.connect();
-		
+	public static void main(String[] args) {		
 		//create the log file if it is not present
 		String path = System.getProperty("user.home");
 		path += "/CHATROOM";
@@ -29,14 +26,21 @@ public class ClientExec {
 			}
 		}
 		
-		try {
-			new MainSplash(new ClientModel(args[0], Integer.parseInt(args[1])));
-		} catch (NumberFormatException e) {
-			e.printStackTrace(new PrintWriter(Config.errors));
-			LogFileWriter.Log(Config.errors.toString());
-		} catch (IOException e) {
-			e.printStackTrace(new PrintWriter(Config.errors));
-			LogFileWriter.Log(Config.errors.toString());
+		if(args.length == 3 && args[2].equals("--console")) {
+			Client client = new Client(args[0],Integer.parseInt(args[1]));
+			client.connect();
 		}
+		else if(args.length == 2) {
+			try {
+				new MainSplash(new ClientModel(args[0], Integer.parseInt(args[1])));
+			} catch (NumberFormatException e) {
+				e.printStackTrace(new PrintWriter(Config.errors));
+				LogFileWriter.Log(Config.errors.toString());
+			} catch (IOException e) {
+				e.printStackTrace(new PrintWriter(Config.errors));
+				LogFileWriter.Log(Config.errors.toString());
+			}
+		}
+
 	}
 }

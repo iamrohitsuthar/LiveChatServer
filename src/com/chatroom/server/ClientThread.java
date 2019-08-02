@@ -54,6 +54,7 @@ public class ClientThread extends Thread{
 				else {
 					this.request.setContents("");
 					this.request.setId(Request.Type.LOGOUT.ordinal());
+					this.request.setRoomId(-1);
 					Server.requestqueue.add(this);
 				}
 				
