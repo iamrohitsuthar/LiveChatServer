@@ -1,7 +1,6 @@
 package com.chatroom.client;
 
 import java.io.Console;
-import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -10,14 +9,12 @@ import java.io.StringWriter;
 import java.lang.Thread.State;
 import java.net.Socket;
 import java.util.Scanner;
-
 import com.chatroom.configuration.Config;
 import com.chatroom.models.Request;
 import com.chatroom.models.Response;
 import com.chatroom.others.Hash;
 import com.chatroom.others.LogFileWriter;
 import com.chatroom.others.Message;
-import com.chatroom.server.Server;
 
 public class Client {
 	private int clientID = -1;

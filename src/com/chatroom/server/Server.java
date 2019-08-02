@@ -261,18 +261,11 @@ class RequestAnalyser extends Thread{
 
 	public static void logout(ClientThread clientThread, Request request, int temp) {
 		Response response = new Response( Response.Type.LOGOUT.ordinal() , true, "Logout Succesfully");
-		
-		
+		Server.responseMakerQueue.add(new ResponseHolder(response, clientThread.objectOutputStream));
 		if(temp == 1) {
-			if(request.getRoomId() != -1) {
+			if(request.getRoomId() != -1)
 				Server.roomsHolder.get(request.getRoomId()).remove(request.getClientId());
-				Server.responseMakerQueue.add(new ResponseHolder(response, clientThread.objectOutputStream));
-			}
 			Server.clientHolder.remove(request.getClientId());
-		}
-		else
-		{
-			Server.responseMakerQueue.add(new ResponseHolder(response, clientThread.objectOutputStream));
 		}
 		
 		if( Server.responseMaker.getState() == State.WAITING )

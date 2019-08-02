@@ -41,6 +41,5 @@ public class ClientExec {
 				LogFileWriter.Log(Config.errors.toString());
 			}
 		}
-
 	}
 }
