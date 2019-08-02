@@ -415,11 +415,6 @@ class MessageHandler  extends Thread{
 										if( request.getContents().equals("sv_logout") )
 										{
 											RequestAnalyser.logout(ct,request);
-										}	
-										else
-										{
-											Set<Integer> set1 = Server.roomsHolder.get(request.getRoomId());
-											set1.remove(id);
 										}
 									}
 								}
@@ -439,6 +434,10 @@ class MessageHandler  extends Thread{
 							e.printStackTrace(new PrintWriter(Server.errors));
 							LogFileWriter.Log(Server.errors.toString());
 						}
+				}
+				if(request.getContents().equals("sv_exit")) {
+					Set<Integer> set1 = Server.roomsHolder.get(request.getRoomId());
+					set1.remove(request.getClientId());
 				}
 			}
 			catch (Exception e) {
