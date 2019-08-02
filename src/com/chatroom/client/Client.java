@@ -234,7 +234,10 @@ public class Client {
 						String msg = response.getContents();
 						String name = msg.substring(0, msg.indexOf(" "));
 						msg = msg.substring(msg.indexOf(" ")+1);
-						Message.println("\n<" + name + ">: " + msg);
+						if(response.getId() == Response.Type.P_MSG.ordinal())
+							Message.println("\n<" + name + "> (Personal Message): " + msg);
+						else	
+							Message.println("\n<" + name + ">: " + msg);
 					}
 					
 					if(response.getContents().equals("sv_exit_successful")) {
