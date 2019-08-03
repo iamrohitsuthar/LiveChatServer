@@ -14,7 +14,7 @@ LiveChatServer is a Live CHATROOM which allows multiple users (Clients) to chat 
 - Multiuser Live Chat
 - Awesome GUI + Console mode option
 - Password Encryption
-- Logs Tracking by writing into the file
+- Error Tracking by writing them into a log file
 
 ## Usage
 
@@ -28,19 +28,20 @@ LiveChatServer is a Live CHATROOM which allows multiple users (Clients) to chat 
     ```sh
     java -jar client.jar server_host server_port_no
     ```
-3. The above command opens the GUI mode. If you want to open the standard console mode then specify extra **- -console** option while running the client program
+3. The above command opens the GUI mode. If you want to open the standard console mode then specify extra **--console** option while running the client program
 
     ```sh
     java -jar client.jar server_host server_port_no --console
     ```  
     
-### Console Commands or hidden commands
+### Console Commands or hidden commands ( can be typed as a message )
 
 1. For Sending personal message in live chat group
     
     ```sh
     @username **message**
     ```
+    ( this will show up as a **PM** on that particular user's screen )
 2. For Exiting from Live Chat Group
     
     ```sh
@@ -51,15 +52,17 @@ LiveChatServer is a Live CHATROOM which allows multiple users (Clients) to chat 
     ```sh
     sv_logout
     ```
-4. For creating secret chat room
-
-    ```sh
-    i) First create the new chat room by leaving the name of the chatroom as empty or by providing spaces.
+    
+### It's not a BUG. It's a feature!
+  #### Create a SECRET ROOM!!
+    
+    i) First create a new chat room by leaving the name of the chatroom empty or by providing spaces.
     ii) Now you can join the above created room by specifying empty name or the spaces you provided while creating the room in join room option.
-    ```
+    iii) This room won't be visible / displayed in the view rooms list!
     
     
-### Development
+    
+### Collaborate with us!
 Want to contribute? Great!<br/>
 
 To fix a bug or enhance an existing module, follow these steps:
