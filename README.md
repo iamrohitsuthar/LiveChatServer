@@ -1,4 +1,4 @@
-# CHATROOM - LiveChatServer [![forthebadge](https://forthebadge.com/images/badges/made-with-java.svg)](https://forthebadge.com)                                 [![](https://img.shields.io/github/license/iamrohitsuthar/LiveChatServer)]()
+# CHATROOM - LiveChatServer [![forthebadge](https://forthebadge.com/images/badges/made-with-java.svg)](https://forthebadge.com)                                 [![](https://img.shields.io/github/license/iamrohitsuthar/LiveChatServer)](https://github.com/iamrohitsuthar/LiveChatServer/blob/master/LICENSE)
 <table>
 <tr>
 <td>
