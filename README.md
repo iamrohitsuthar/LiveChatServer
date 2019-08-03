@@ -78,7 +78,7 @@ To fix a bug or enhance an existing module, follow these steps:
  
 ### Bug / Feature Request
 
-If you find a bug (the website couldn't handle the query and / or gave undesired results), kindly open an issue [here](https://github.com/iamrohitsuthar/LiveChatServer/issues/new).
+If you find a bug (the application couldn't handle the query and / or gave undesired results), kindly open an issue [here](https://github.com/iamrohitsuthar/LiveChatServer/issues/new).
 
 If you'd like to request a new function, feel free to do so by opening an issue [here](https://github.com/iamrohitsuthar/LiveChatServer/issues/new).
 
