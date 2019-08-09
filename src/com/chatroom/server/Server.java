@@ -322,9 +322,11 @@ class MessageHandler  extends Thread{
 		String msg = "";
 		String sender = "";
 		String reciever = "";
+		String data = "";
 		int recieverId = -1;
 		while(true)
 		{
+			data = "";
 			try
 			{
 				if(Server.messagequeue.isEmpty())
@@ -442,6 +444,11 @@ class MessageHandler  extends Thread{
 									}
 								}
 							}
+							else if(request.getContents().equals("sv_showusers")) {
+								//show the current online users in that room
+								if(id != request.getClientId())
+									data += Server.getClientNameFromId(id) + ",";
+							}
 							else
 							{
 								if(((request.getId() == Request.Type.STATUS_MSG.ordinal()) || id != request.getClientId()) || request.getIsConsole()) {
@@ -480,6 +487,13 @@ class MessageHandler  extends Thread{
 				else if(request.getContents().equals("sv_logout")) {
 					Server.roomsHolder.get(request.getRoomId()).remove(request.getClientId());
 					Server.clientHolder.remove(request.getClientId());
+				}
+				else if(request.getContents().equals("sv_showusers")) {
+					ClientThread ct = Server.clientHolder.get(request.getClientId());
+					ObjectOutputStream oos = ct.objectOutputStream;
+					Response response = new Response(Response.Type.GEN.ordinal(),true,data);
+					oos.writeObject(response);
+					oos.flush();
 				}
 			}
 			catch (Exception e) {
