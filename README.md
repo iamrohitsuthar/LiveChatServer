@@ -53,6 +53,11 @@ LiveChatServer is a Live CHATROOM which allows multiple users (Clients) to chat 
     ```sh
     sv_logout
     ```
+4. For getting the list of online users in room
+
+    ```sh
+    sv_showusers
+    ```
     
 ### It's not a BUG. It's a feature!
   #### Create a SECRET ROOM!!
