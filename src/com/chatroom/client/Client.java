@@ -9,6 +9,7 @@ import java.io.StringWriter;
 import java.lang.Thread.State;
 import java.net.Socket;
 import java.util.Scanner;
+
 import com.chatroom.configuration.Config;
 import com.chatroom.models.Request;
 import com.chatroom.models.Response;
@@ -236,7 +237,20 @@ public class Client {
 						else	
 							Message.println("\n<" + name + ">: " + msg);
 					}
-					
+					else if(response.getId() == Response.Type.GEN.ordinal()) {
+						String data = "List of Online Users \n";
+						int i = 1;
+						data += i + ". You \n";
+						String temp = response.getContents();
+						if(temp.length() != 0 && !temp.equals("")) {
+							String arrayOFNames[] = temp.split(",");
+							for (String string : arrayOFNames) {
+								i++;
+								data += i + ". " + string + "\n";
+							}
+						}
+						Message.println(data);
+					}
 					if(response.getContents().equals("sv_exit_successful")) {
 						synchronized(this){
 							this.wait();
