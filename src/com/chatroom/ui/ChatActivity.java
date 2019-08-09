@@ -58,6 +58,7 @@ public class ChatActivity {
 	private JPanel optionsButtonsHolder;
 	private JLabel jLabel_logout;
 	private JLabel jLabel_exit;
+	private JLabel jLabel_live;
 	private int tracker; //used for storing last maximum value of scroll bar
 	private boolean isSenderMsg;
 	private boolean isReadMode;
@@ -84,15 +85,22 @@ public class ChatActivity {
 		
 		BufferedImage logout = ImageIO.read(this.getClass().getResource("/logout.png"));
 		BufferedImage exit = ImageIO.read(this.getClass().getResource("/exit.png"));
+		BufferedImage liveUsers = ImageIO.read(this.getClass().getResource("/live.png"));
+		
 		
 		jLabel_logout = new JLabel(new ImageIcon(logout));
 		jLabel_logout.setPreferredSize(new Dimension(50,50));
+		jLabel_logout.setToolTipText("Logout");
 		jLabel_exit = new JLabel(new ImageIcon(exit));
 		jLabel_exit.setPreferredSize(new Dimension(50,50));
+		jLabel_exit.setToolTipText("Exit from group");
+		jLabel_live = new JLabel(new ImageIcon(liveUsers));
+		jLabel_live.setPreferredSize(new Dimension(50,50));
+		jLabel_live.setToolTipText("Current online users");
 		
 		optionsButtonsHolder.add(jLabel_exit);
-		optionsButtonsHolder.add(jLabel_logout);
-		
+		optionsButtonsHolder.add(jLabel_live);
+		optionsButtonsHolder.add(jLabel_logout);	
 		
 		rightBubbleConstraints = new GridBagConstraints(0, i, 1, 1, 1.0, 0,
 	            GridBagConstraints.NORTHEAST, GridBagConstraints.NONE, new Insets(
@@ -179,6 +187,23 @@ public class ChatActivity {
 					e1.printStackTrace(new PrintWriter(Config.errors));
 					LogFileWriter.Log(Config.errors.toString());
 				}
+			}
+		});
+		
+		jLabel_live.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				super.mouseClicked(e);
+				try {
+					request = new Request(Request.Type.MSG.ordinal(),clientModel.getClientID(),clientModel.getRoomId(),"sv_showusers");
+					ClientModel.objectOutputStream.writeObject(request);
+					ClientModel.objectOutputStream.flush();
+					
+				} catch (IOException e1) {
+					e1.printStackTrace(new PrintWriter(Config.errors));
+					LogFileWriter.Log(Config.errors.toString());
+				}
+				
 			}
 		});
 		
@@ -363,6 +388,21 @@ public class ChatActivity {
 					response = (Response) ClientModel.objectInputStream.readObject();
 					if(response.getId() == Response.Type.STATUS_MSG.ordinal() || response.getId() == Response.Type.LOGOUT.ordinal())
 						displayStatusMessages(response.getContents());
+					else if(response.getId() == Response.Type.GEN.ordinal()) {
+						String data = "List of Online Users \n";
+						int i = 1;
+						data += i + ". You \n";
+						String temp = response.getContents();
+						if(temp.length() != 0 && !temp.equals("")) {
+							String arrayOFNames[] = temp.split(",");
+							for (String string : arrayOFNames) {
+								i++;
+								data += i + ". " + string + "\n";
+							}
+						}
+						UIManager.put("OptionPane.okButtonText", "OK");
+						JOptionPane.showMessageDialog(null, data);
+					}
 					else {
 						String msg = response.getContents();
 						String name = msg.substring(0, msg.indexOf(" "));
@@ -412,6 +452,5 @@ public class ChatActivity {
 		}
 	}
 }
-
 
 
