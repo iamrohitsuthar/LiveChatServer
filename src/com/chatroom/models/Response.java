@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 public class Response implements Serializable{
 	public enum Type {
-		ACK,SIGN_UP, LOGIN, LOGOUT, CREATE_ROOM, JOIN_ROOM, VIEW_ROOMS,MSG, STATUS_MSG, P_MSG;
+		ACK,SIGN_UP, LOGIN, LOGOUT, CREATE_ROOM, JOIN_ROOM, VIEW_ROOMS,MSG, STATUS_MSG, P_MSG, GEN;
 	}
 	int id;
 	String content;
