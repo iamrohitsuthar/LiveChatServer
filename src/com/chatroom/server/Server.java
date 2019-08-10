@@ -3,7 +3,6 @@ package com.chatroom.server;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.sql.Connection;
@@ -18,16 +17,10 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map.Entry;
-
-import javax.sound.midi.Receiver;
-
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Scanner;
 import java.util.Set;
-
-import com.mysql.jdbc.Driver;
-import com.mysql.jdbc.PreparedStatement;
 import com.chatroom.configuration.Config;
 import com.chatroom.models.MessageTrackObject;
 import com.chatroom.models.Request;
@@ -76,13 +69,13 @@ class RequestAnalyser extends Thread{
 							//if user is not already present then insert data into database
 							String query =  "INSERT INTO " + Config.TABLE_NAME + "("+Config.CLIENT_NAME+","+ Config.CLIENT_PWD +") VALUES(?,?)";
 							String pwd = requestContent.substring(requestContent.indexOf("#")+1);
-							preparedStatement = (PreparedStatement) Server.connection.prepareStatement(query,Statement.RETURN_GENERATED_KEYS);
+							preparedStatement = Server.connection.prepareStatement(query,Statement.RETURN_GENERATED_KEYS);
 							preparedStatement.setString(1, username);
 							preparedStatement.setString(2, pwd);
 							
 							
 							int response_code = preparedStatement.executeUpdate();
-							if(response_code > 0) {
+							if(response_code > 0) {							
 								//success
 								resultSet = preparedStatement.getGeneratedKeys();
 								if(resultSet.next())
@@ -564,9 +557,15 @@ public class Server {
 		serverOperations.start();
 		
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
+			Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
 			connection = DriverManager.getConnection(Config.DATABASE_URL+"/"+Config.DATABASE_NAME,Config.USER_NAME,Config.USER_PWD);
 		} catch (SQLException | ClassNotFoundException e) {
+			e.printStackTrace(new PrintWriter(Config.errors));
+			LogFileWriter.Log(Config.errors.toString());
+		} catch (InstantiationException e) {
+			e.printStackTrace(new PrintWriter(Config.errors));
+			LogFileWriter.Log(Config.errors.toString());
+		} catch (IllegalAccessException e) {
 			e.printStackTrace(new PrintWriter(Config.errors));
 			LogFileWriter.Log(Config.errors.toString());
 		}
