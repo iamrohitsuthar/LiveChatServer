@@ -14,7 +14,7 @@ public class createdb {
 		java.sql.Statement statement= null;
 		
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
+			Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
 			
 			//creating database
 			connection = DriverManager.getConnection(Config.DATABASE_URL,Config.USER_NAME,Config.USER_PWD);
@@ -34,6 +34,12 @@ public class createdb {
 			e.printStackTrace(new PrintWriter(Config.errors));
 			LogFileWriter.Log(Config.errors.toString());
 		} catch (SQLException e) {
+			e.printStackTrace(new PrintWriter(Config.errors));
+			LogFileWriter.Log(Config.errors.toString());
+		} catch (InstantiationException e) {
+			e.printStackTrace(new PrintWriter(Config.errors));
+			LogFileWriter.Log(Config.errors.toString());
+		} catch (IllegalAccessException e) {
 			e.printStackTrace(new PrintWriter(Config.errors));
 			LogFileWriter.Log(Config.errors.toString());
 		}
