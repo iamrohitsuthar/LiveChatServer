@@ -9,7 +9,7 @@ import com.chatroom.others.LogFileWriter;
 
 
 public class createdb {
-	public static void main(String[] args) {
+	public createdb() {
 		Connection connection = null;
 		java.sql.Statement statement= null;
 		
