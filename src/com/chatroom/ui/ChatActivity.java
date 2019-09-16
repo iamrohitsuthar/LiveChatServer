@@ -386,62 +386,69 @@ public class ChatActivity {
 			while(true && isContinue ) {
 				try {
 					response = (Response) ClientModel.objectInputStream.readObject();
-					if(response.getId() == Response.Type.STATUS_MSG.ordinal() || response.getId() == Response.Type.LOGOUT.ordinal())
-						displayStatusMessages(response.getContents());
-					else if(response.getId() == Response.Type.GEN.ordinal()) {
-						String data = "List of Online Users \n";
-						int i = 1;
-						data += i + ". You \n";
-						String temp = response.getContents();
-						if(temp.length() != 0 && !temp.equals("")) {
-							String arrayOFNames[] = temp.split(",");
-							for (String string : arrayOFNames) {
-								i++;
-								data += i + ". " + string + "\n";
-							}
-						}
-						UIManager.put("OptionPane.okButtonText", "OK");
-						JOptionPane.showMessageDialog(null, data);
-					}
-					else {
-						String msg = response.getContents();
-						String name = msg.substring(0, msg.indexOf(" "));
-						if(response.getId() == Response.Type.P_MSG.ordinal())
-							name += "(PM)";
-						msg = msg.substring(msg.indexOf(" ")+1);
-						setReceiverMessage(name,msg);
-					}
-					if(response.getContents().equals("sv_exit_successful")) {
-						isContinue = false;
-						clientModel.setRoomId(-1);
-						SwingUtilities.invokeLater(new Runnable() {
-							   public void run() {
-								try {
-									new MainMenuOptions(clientModel);
-								} catch (IOException e) {
-									e.printStackTrace(new PrintWriter(Config.errors));
-									LogFileWriter.Log(Config.errors.toString());
+					SwingUtilities.invokeLater(new Runnable() {
+						@Override
+						public void run() {
+							if(response.getId() == Response.Type.STATUS_MSG.ordinal() || response.getId() == Response.Type.LOGOUT.ordinal())
+								displayStatusMessages(response.getContents());
+							else if(response.getId() == Response.Type.GEN.ordinal()) {
+								String data = "List of Online Users \n";
+								int i = 1;
+								data += i + ". You \n";
+								String temp = response.getContents();
+								if(temp.length() != 0 && !temp.equals("")) {
+									String arrayOFNames[] = temp.split(",");
+									for (String string : arrayOFNames) {
+										i++;
+										data += i + ". " + string + "\n";
+									}
 								}
-								   jFrame.dispose();
-							   }
-							});
-					}
-					else if(response.getId() == Response.Type.LOGOUT.ordinal()) {
-						isContinue = false;
-						clientModel.setRoomId(-1);
-						clientModel.setClientID(-1);
-						SwingUtilities.invokeLater(new Runnable() {
-						   public void run() {
-							try {
-								new SignInActivity(clientModel);
-							} catch (IOException e) {
-								e.printStackTrace(new PrintWriter(Config.errors));
-								LogFileWriter.Log(Config.errors.toString());
+								UIManager.put("OptionPane.okButtonText", "OK");
+								JOptionPane.showMessageDialog(null, data);
 							}
-							   jFrame.dispose();
-						   }
-						});
-				}
+							else {
+								String msg = response.getContents();
+								String name = msg.substring(0, msg.indexOf(" "));
+								if(response.getId() == Response.Type.P_MSG.ordinal())
+									name += "(PM)";
+								msg = msg.substring(msg.indexOf(" ")+1);
+								setReceiverMessage(name,msg);
+							}
+							if(response.getContents().equals("sv_exit_successful")) {
+								isContinue = false;
+								clientModel.setRoomId(-1);
+								SwingUtilities.invokeLater(new Runnable() {
+									   public void run() {
+										try {
+											new MainMenuOptions(clientModel);
+										} catch (IOException e) {
+											e.printStackTrace(new PrintWriter(Config.errors));
+											LogFileWriter.Log(Config.errors.toString());
+										}
+										   jFrame.dispose();
+									   }
+									});
+							}
+							else if(response.getId() == Response.Type.LOGOUT.ordinal()) {
+								isContinue = false;
+								clientModel.setRoomId(-1);
+								clientModel.setClientID(-1);
+								SwingUtilities.invokeLater(new Runnable() {
+								   public void run() {
+									try {
+										new SignInActivity(clientModel);
+									} catch (IOException e) {
+										e.printStackTrace(new PrintWriter(Config.errors));
+										LogFileWriter.Log(Config.errors.toString());
+									}
+									   jFrame.dispose();
+								   }
+								});
+						}
+							
+						}
+					});
+					
 					
 				} catch (ClassNotFoundException | IOException e) {
 					e.printStackTrace(new PrintWriter(Config.errors));
