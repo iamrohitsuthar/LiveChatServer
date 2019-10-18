@@ -23,29 +23,29 @@ public class Client {
 	private Scanner scanner = new Scanner(System.in);
 	private int choice;
 	private String cont;
-	private String host = "";
-	private int port = -1;
+	private String host = ""; 
+	private int port = -1; 
 	private ObjectOutputStream objectOutputStream;
 	private ObjectInputStream objectInputStream;
-	private Socket socket;
+	private Socket socket;  //Creating an instance
 	private Request request = null;
 	private Response response = null;
 	private MessageListener messageListener;
 	
 	public Client(String host, int port) {
-		this.host = host;
+		this.host = host;//this keyword is self pointer
 		this.port = port;
 		messageListener = new MessageListener();
 	}
 	
 	public void connect() {
 		try {
-			socket = new Socket(host,port);
+			socket = new Socket(host,port);   //Creating object of Socket class
 			objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
 			objectInputStream = new ObjectInputStream(socket.getInputStream());
 			mainFunc();
 		} catch (IOException e) {
-			e.printStackTrace(new PrintWriter(Config.errors));
+			e.printStackTrace(new PrintWriter(Config.errors));//Exception when socket not created
 			LogFileWriter.Log(Config.errors.toString());
 		}
 	}
@@ -53,7 +53,7 @@ public class Client {
 	private void mainOptions() {
 		try {
 			Message.println("1. Create Room\n2. Join Room\n3. View Available Roooms\n4. Logout");
-			choice = scanner.nextInt();
+			choice = scanner.nextInt();//Reading integer number
 			switch(choice)
 			{
 				case 1:
@@ -108,7 +108,7 @@ public class Client {
 			request = new Request(Request.Type.VIEW_ROOMS.ordinal(),clientID,roomId,cont);
 			request.setIsConsole(true);
 			objectOutputStream.writeObject(request);
-			objectOutputStream.flush();
+			objectOutputStream.flush();//Clearing cache memory
 			response = (Response) objectInputStream.readObject();
 			if( response.getSuccess())
 			{
